@@ -147,7 +147,8 @@ class MigrationPipeline:
                 )
 
             self._update_leaderboard(
-                evaluation
+                evaluation,
+                source_path,
             )
 
             self._logger.info(
@@ -169,6 +170,7 @@ class MigrationPipeline:
     def _update_leaderboard(
         self,
         evaluation: dict[str, Any],
+        source_path: Path,
     ) -> None:
         """
         Add the migration result to the leaderboard.
@@ -184,6 +186,8 @@ class MigrationPipeline:
             entry = LeaderboardEntry(
                 provider_name=self._translator.provider_name,
                 model_name=self._translator.model_name,
+                source_file=source_path.name,
+                
                 benchmark_time=evaluation[
                     "benchmark_time"
                 ],

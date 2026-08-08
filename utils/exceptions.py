@@ -89,3 +89,8 @@ class ValidationError(AIPlatformError):
     Raised when user input validation fails.
     """
 
+class CLIValidationError(ValidationError):
+    """
+    Raised when CLI argument validation fails.
+    """
+

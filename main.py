@@ -1,7 +1,13 @@
 from __future__ import annotations
 
-from pathlib import Path
 import sys
+from pathlib import Path
+
+from cli.arguments import parse_args
+from cli.validators import (
+    CLIValidationError,
+    CLIValidator,
+)
 
 from utils.logger import get_logger
 
@@ -15,28 +21,11 @@ def build_pipeline(
     benchmark_runs: int | None = None,
     timeout: int | None = None,
     report_json: bool = False,
-) -> MigrationPipeline:
+):
     """
     Build and wire all application services.
-
-    Args:
-        provider_name:
-            Optional LLM provider override.
-        model_name:
-            Optional LLM model override.
-        output_directory:
-            Optional output directory override.
-        benchmark_runs:
-            Optional benchmark run count override.
-        timeout:
-            Optional execution timeout override.
-        report_json:
-            Whether to generate a JSON report.
-
-    Returns:
-        Configured migration pipeline.
     """
-    # Lazy imports (Streamlit compatibility)
+
     from benchmark.benchmark import Benchmark
     from compiler.compiler import Compiler
     from compiler.executor import Executor
@@ -46,23 +35,21 @@ def build_pipeline(
         EXECUTION_TIMEOUT_SECONDS,
     )
     from evaluator.evaluator import Evaluator
+    from leaderboard.leaderboard_store import LeaderboardStore
+    from leaderboard.manager import Leaderboard
     from outputs.output_manager import OutputManager
     from pipeline.migration_pipeline import MigrationPipeline
     from providers.provider_factory import create_provider
     from report.report_generator import ReportGenerator
     from translator.translator import Translator
     from workspace.workspace_manager import WorkspaceManager
-    from leaderboard.manager import Leaderboard
-    from leaderboard.leaderboard_store import LeaderboardStore
 
     logger.info(
         "Building application dependencies."
     )
 
-    # Infrastructure
     workspace_manager = WorkspaceManager()
 
-    # Provider
     provider = create_provider(
         provider_name=(
             provider_name
@@ -72,7 +59,6 @@ def build_pipeline(
         model_name=model_name,
     )
 
-    # Core services
     translator = Translator(
         provider=provider,
     )
@@ -105,7 +91,6 @@ def build_pipeline(
         store=leaderboard_store
     )
 
-    # Pipeline
     pipeline = MigrationPipeline(
         workspace_manager=workspace_manager,
         translator=translator,
@@ -142,12 +127,7 @@ def main() -> int:
     Returns:
         Process exit code.
     """
-    # Lazy imports
-    from cli.arguments import parse_args
-    from cli.validators import (
-        CLIValidationError,
-        CLIValidator,
-    )
+
     from config import DEFAULT_PROVIDER
 
     try:
@@ -205,8 +185,10 @@ def main() -> int:
                 args.timeout
             )
 
-        source_path = validator.validate_source_path(
-            args.source
+        source_path = (
+            validator.validate_source_path(
+                args.source
+            )
         )
 
         pipeline = build_pipeline(
@@ -216,10 +198,6 @@ def main() -> int:
             benchmark_runs=benchmark_runs,
             timeout=timeout,
             report_json=args.report_json,
-        )
-
-        logger.info(
-            "Migration pipeline ready."
         )
 
         report = pipeline.run(
@@ -249,7 +227,7 @@ def main() -> int:
         )
 
         return 2
-    
+
     except Exception as exc:
         logger.exception(
             "Application failed: %s",
@@ -257,7 +235,7 @@ def main() -> int:
         )
 
         print(
-            "Error: Migration failed."
+            "Error: Migration failed. "
             "Check the application logs for details.",
             file=sys.stderr,
         )

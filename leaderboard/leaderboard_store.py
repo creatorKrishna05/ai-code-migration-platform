@@ -52,9 +52,11 @@ class LeaderboardStore:
                 {
                     "provider_name": item.provider_name,
                     "model_name": item.model_name,
+                    "source_file": item.source_file,
                     "benchmark_time": item.benchmark_time,
                     "execution_time": item.execution_time,
                     "overall_success": item.overall_success,
+                    "created_at": item.created_at,
                 }
                 for item in entries
             ]
@@ -101,9 +103,18 @@ class LeaderboardStore:
                 LeaderboardEntry(
                     provider_name=item["provider_name"],
                     model_name=item["model_name"],
+                    source_file=item.get(
+                        "source_file",
+                        "unknown.py",
+                    ),
                     benchmark_time=item["benchmark_time"],
                     execution_time=item["execution_time"],
                     overall_success=item["overall_success"],
+                    created_at=item.get(
+                        "created_at",
+                        "",
+                    ),
+
                 )
                 for item in data
             ]
