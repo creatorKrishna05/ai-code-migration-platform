@@ -3,28 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 import sys
 
-from benchmark.benchmark import Benchmark
-from cli.arguments import parse_args
-from cli.validators import CLIValidationError, CLIValidator
-from compiler.compiler import Compiler
-from compiler.executor import Executor
-from config import (
-    BENCHMARK_RUNS,
-    DEFAULT_PROVIDER,
-    EXECUTION_TIMEOUT_SECONDS,
-)
-from evaluator.evaluator import Evaluator
-from outputs.output_manager import OutputManager
-from pipeline.migration_pipeline import MigrationPipeline
-from providers.provider_factory import create_provider
-from report.report_generator import ReportGenerator
-from translator.translator import Translator
 from utils.logger import get_logger
-from workspace.workspace_manager import WorkspaceManager
-
-from leaderboard.manager import Leaderboard
-from leaderboard.leaderboard_store import LeaderboardStore
-
 
 logger = get_logger(__name__)
 
@@ -57,6 +36,25 @@ def build_pipeline(
     Returns:
         Configured migration pipeline.
     """
+    # Lazy imports (Streamlit compatibility)
+    from benchmark.benchmark import Benchmark
+    from compiler.compiler import Compiler
+    from compiler.executor import Executor
+    from config import (
+        BENCHMARK_RUNS,
+        DEFAULT_PROVIDER,
+        EXECUTION_TIMEOUT_SECONDS,
+    )
+    from evaluator.evaluator import Evaluator
+    from outputs.output_manager import OutputManager
+    from pipeline.migration_pipeline import MigrationPipeline
+    from providers.provider_factory import create_provider
+    from report.report_generator import ReportGenerator
+    from translator.translator import Translator
+    from workspace.workspace_manager import WorkspaceManager
+    from leaderboard.manager import Leaderboard
+    from leaderboard.leaderboard_store import LeaderboardStore
+
     logger.info(
         "Building application dependencies."
     )
@@ -66,8 +64,12 @@ def build_pipeline(
 
     # Provider
     provider = create_provider(
-        provider_name,
-        model_name,
+        provider_name=(
+            provider_name
+            if provider_name
+            else DEFAULT_PROVIDER
+        ),
+        model_name=model_name,
     )
 
     # Core services
@@ -140,6 +142,14 @@ def main() -> int:
     Returns:
         Process exit code.
     """
+    # Lazy imports
+    from cli.arguments import parse_args
+    from cli.validators import (
+        CLIValidationError,
+        CLIValidator,
+    )
+    from config import DEFAULT_PROVIDER
+
     try:
         logger.info(
             "Starting AI Code Migration Platform."
