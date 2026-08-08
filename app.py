@@ -330,6 +330,9 @@ def render_migration_results(
     model: str,
 ) -> None:
     """Render all migration results."""
+
+    st.write("DEBUG REPORT:", report)
+    
     st.success(
         "Migration completed successfully! 🎉"
     )
