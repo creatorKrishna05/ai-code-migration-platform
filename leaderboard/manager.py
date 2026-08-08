@@ -1,8 +1,6 @@
 from __future__ import annotations
-
-from leaderboard.leaderboard_entry import LeaderboardEntry
-from leaderboard.leaderboard_store import LeaderboardStore
-
+from .leaderboard_store import LeaderboardStore
+from .leaderboard_entry import LeaderboardEntry
 
 class Leaderboard:
     """

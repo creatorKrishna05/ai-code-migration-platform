@@ -9,7 +9,7 @@ import streamlit as st
 
 from config import OUTPUT_DIR
 from config import DEFAULT_MODEL, DEFAULT_PROVIDER
-from leaderboard.leaderboard import Leaderboard
+from leaderboard.manager import Leaderboard
 from leaderboard.leaderboard_store import LeaderboardStore
 from main import build_pipeline
 
