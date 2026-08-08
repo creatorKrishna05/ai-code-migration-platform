@@ -191,7 +191,7 @@ COMPILER_FLAGS: list[str] = [
     f"-std={CPP_STANDARD}",
     f"-I{SQLITE_INCLUDE_DIR}",
     f"-L{SQLITE_LIBRARY_DIR}",
-    "-lsqlite3",
+    
 ]
 
 # =============================================================================
