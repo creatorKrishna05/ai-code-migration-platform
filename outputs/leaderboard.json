@@ -96,5 +96,12 @@
         "benchmark_time": 0.03563025994226336,
         "execution_time": 0.03563025994226336,
         "overall_success": true
+    },
+    {
+        "provider_name": "Groq",
+        "model_name": "llama-3.3-70b-versatile",
+        "benchmark_time": 0.04014118001796305,
+        "execution_time": 0.04014118001796305,
+        "overall_success": true
     }
 ]
