@@ -6,7 +6,7 @@ from typing import Any
 from benchmark.benchmark import Benchmark
 from compiler.compiler import Compiler
 from evaluator.evaluator import Evaluator
-from leaderboard.leaderboard import Leaderboard
+from leaderboard.manager import Leaderboard
 from leaderboard.leaderboard_entry import LeaderboardEntry
 from outputs.output_manager import OutputManager
 from report.report_generator import ReportGenerator
