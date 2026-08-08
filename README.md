@@ -109,18 +109,17 @@ llama3.2:latest
 
 ## 🧰 Technology Stack
 
-  Component         Technology
-  ----------------- ----------------------------
-  Language          Python
-  Target Language   Modern C++20
-  LLM Provider      Groq
-  Local LLM         Ollama
-  Web UI            Streamlit
-  Compiler          C++ compiler
-  Testing           Pytest
-  Persistence       JSON
-  Logging           Python logging
-  Architecture      Modular / Service-oriented
+ | Component | Technology |
+|-----------|------------|
+| Language | Python |
+| Target Language | Modern C++20 |
+| LLM Provider | Groq |
+| Local LLM | Ollama |
+| Web UI | Streamlit |
+| Compiler | C++ Compiler |
+| Testing | Pytest |
+| Persistence | JSON |
+| Architecture | Modular Service Architecture |
 
 ## 📁 Project Structure
 
