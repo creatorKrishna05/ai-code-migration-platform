@@ -175,7 +175,6 @@ AI-Code-Migration-Platform/
 ├── config.py
 ├── requirements.txt
 └── README.md
-```
 
 ## 🚀 Getting Started
 
