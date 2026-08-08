@@ -50,22 +50,14 @@ STRICT REQUIREMENTS:
     - Never discard const qualifiers.
     - Avoid unnecessary non-const references.
     - Ensure function parameters, references, and methods are compatible.
-17. The final output must be a complete standalone C++ program.
+17. Generated C++ must pass strict compiler checks.
 
-STANDARD LIBRARY HEADER REQUIREMENTS:
-
-- Include every header required by the features used.
-- Verify every std:: feature has its corresponding header.
-- Use <iomanip> when using std::setw or std::setfill.
-- Use <sstream> when using std::stringstream or std::ostringstream.
-- Use <iostream> when using std::cout, std::cin, or std::endl.
-- Use <string> when using std::string.
-- Use <vector> when using std::vector.
-- Use <algorithm> when using standard algorithms.
-- Use <filesystem> when using std::filesystem.
-- Use <fstream> when using file streams.
-- Use <chrono> when using time-related functionality.
-- Never rely on indirect header inclusion.
+- All member functions called on const objects must be declared const.
+- Do not create const references to objects that require mutation.
+- Avoid calling non-const methods from const methods.
+- Iterator usage must follow STL rules.
+- Never use iterator[index] syntax.
+- Use std::next(iterator, index) or proper container indexing.
 
 FINAL VERIFICATION:
 
@@ -85,6 +77,9 @@ Before returning the answer, internally verify that:
 - the source is syntactically complete,
 - the program is linkable,
 - the program can compile with g++ -std=c++20.
+- Check const correctness of every class method call.
+- Verify STL iterator operations are valid.
+- Ensure no temporary iterator is indexed.
 
 Return ONLY the final C++20 source code.
 """.strip()
