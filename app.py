@@ -7,6 +7,7 @@ from pathlib import Path
 
 import streamlit as st
 
+from config import OUTPUT_DIR
 from config import DEFAULT_MODEL, DEFAULT_PROVIDER
 from leaderboard.leaderboard import Leaderboard
 from leaderboard.leaderboard_store import LeaderboardStore
@@ -28,7 +29,7 @@ st.set_page_config(
 )
 
 
-LEADERBOARD_PATH = Path("outputs/leaderboard.json")
+LEADERBOARD_PATH = Path("OUTPUT_DIR/leaderboard.json")
 
 
 def get_status_text(success: bool) -> str:

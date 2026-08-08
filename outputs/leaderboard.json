@@ -1,0 +1,79 @@
+[
+    {
+        "provider_name": "Groq",
+        "model_name": "llama-3.3-70b-versatile",
+        "benchmark_time": 0.0633897800464183,
+        "execution_time": 0.0633897800464183,
+        "overall_success": true
+    },
+    {
+        "provider_name": "Groq",
+        "model_name": "llama-3.3-70b-versatile",
+        "benchmark_time": 0.06270387996919453,
+        "execution_time": 0.06270387996919453,
+        "overall_success": true
+    },
+    {
+        "provider_name": "Groq",
+        "model_name": "llama-3.3-70b-versatile",
+        "benchmark_time": 0.052357060043141244,
+        "execution_time": 0.052357060043141244,
+        "overall_success": true
+    },
+    {
+        "provider_name": "Groq",
+        "model_name": "llama-3.3-70b-versatile",
+        "benchmark_time": 0.0483956600073725,
+        "execution_time": 0.0483956600073725,
+        "overall_success": true
+    },
+    {
+        "provider_name": "Groq",
+        "model_name": "llama-3.3-70b-versatile",
+        "benchmark_time": 0.05519797992892563,
+        "execution_time": 0.05519797992892563,
+        "overall_success": true
+    },
+    {
+        "provider_name": "Groq",
+        "model_name": "llama-3.3-70b-versatile",
+        "benchmark_time": 0.07582106003537774,
+        "execution_time": 0.07582106003537774,
+        "overall_success": true
+    },
+    {
+        "provider_name": "Groq",
+        "model_name": "llama-3.3-70b-versatile",
+        "benchmark_time": 0.06800028001889587,
+        "execution_time": 0.06800028001889587,
+        "overall_success": true
+    },
+    {
+        "provider_name": "Groq",
+        "model_name": "llama-3.3-70b-versatile",
+        "benchmark_time": 0.058345279982313515,
+        "execution_time": 0.058345279982313515,
+        "overall_success": true
+    },
+    {
+        "provider_name": "Ollama",
+        "model_name": "llama3.2:latest",
+        "benchmark_time": 0.05963003998622298,
+        "execution_time": 0.05963003998622298,
+        "overall_success": true
+    },
+    {
+        "provider_name": "Ollama",
+        "model_name": "llama3.2:latest",
+        "benchmark_time": 0.09990885998122394,
+        "execution_time": 0.09990885998122394,
+        "overall_success": true
+    },
+    {
+        "provider_name": "Groq",
+        "model_name": "llama-3.3-70b-versatile",
+        "benchmark_time": 0.048485680017620325,
+        "execution_time": 0.048485680017620325,
+        "overall_success": true
+    }
+]

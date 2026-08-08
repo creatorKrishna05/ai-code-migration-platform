@@ -22,6 +22,26 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+def get_secret(
+    key: str,
+    default: str = "",
+) -> str:
+    """
+    Load configuration from Streamlit secrets
+    or environment variables.
+    """
+
+    try:
+        import streamlit as st
+
+        if key in st.secrets:
+            return st.secrets[key]
+
+    except Exception:
+        pass
+
+    return os.getenv(key, default)
+
 # =============================================================================
 # Environment
 # =============================================================================
@@ -60,7 +80,7 @@ for directory in (
 # Environment Variables
 # =============================================================================
 
-GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
+GROQ_API_KEY: str = get_secret("GROQ_API_KEY")
 
 OLLAMA_BASE_URL: str = os.getenv(
     "OLLAMA_BASE_URL",
@@ -78,7 +98,11 @@ XAI_API_KEY: str = os.getenv("XAI_API_KEY", "")
 # Provider Configuration
 # =============================================================================
 
-DEFAULT_PROVIDER: str = "groq"
+DEFAULT_PROVIDER: str = get_secret(
+    "DEFAULT_PROVIDER",
+    "groq",
+)
+
 DEFAULT_MODEL: str = "llama-3.3-70b-versatile"
 
 PROVIDERS: dict[str, dict[str, bool]] = {
