@@ -3,7 +3,13 @@ from __future__ import annotations
 
 import json
 import tempfile
+import sys
 from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parent
+
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
 import streamlit as st
 
@@ -29,7 +35,7 @@ st.set_page_config(
 )
 
 
-LEADERBOARD_PATH = Path("OUTPUT_DIR/leaderboard.json")
+LEADERBOARD_PATH = Path(OUTPUT_DIR/"leaderboard.json")
 
 
 def get_status_text(success: bool) -> str:
