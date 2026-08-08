@@ -43,7 +43,14 @@ STRICT REQUIREMENTS:
 
 14. Preserve the observable behavior of the original Python program.
 15. Prefer simple, reliable C++ over unnecessary complexity.
-16. The final output must be a complete standalone C++ program.
+16. Follow strict C++ const correctness rules.
+
+    - const objects must only call const member functions.
+    - Member functions that do not modify object state should be marked const.
+    - Never discard const qualifiers.
+    - Avoid unnecessary non-const references.
+    - Ensure function parameters, references, and methods are compatible.
+17. The final output must be a complete standalone C++ program.
 
 STANDARD LIBRARY HEADER REQUIREMENTS:
 
@@ -120,6 +127,7 @@ IMPORTANT:
 - Do not leave incomplete #include directives.
 - Perform a mental compilation check before returning the code.
 - Verify syntax, declarations, types, namespaces, and required headers.
+- Follow C++ const correctness rules and avoid const qualifier errors.
 - Return only raw, complete C++20 source code.
 - no unnecessary third-party headers are included,
 - no external dependency is required,
