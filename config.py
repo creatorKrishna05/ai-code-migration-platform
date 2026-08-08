@@ -27,10 +27,17 @@ def get_secret(
     default: str = "",
 ) -> str:
     """
-    Load configuration from Streamlit secrets
-    or environment variables.
+    Load configuration from environment variables
+    with Streamlit secrets as fallback.
     """
 
+    # First priority: .env / environment variables
+    value = os.getenv(key)
+
+    if value:
+        return value
+
+    # Second priority: Streamlit secrets
     try:
         import streamlit as st
 
@@ -40,7 +47,7 @@ def get_secret(
     except Exception:
         pass
 
-    return os.getenv(key, default)
+    return default
 
 # =============================================================================
 # Environment
@@ -165,9 +172,26 @@ CPP_STANDARD: str = "c++20"
 
 COMPILER_OPTIMIZATION: str = "-O3"
 
+SQLITE_INCLUDE_DIR: Path = Path(
+    os.environ.get(
+        "SQLITE_INCLUDE_DIR",
+        r"C:\Users\DELL\miniconda3\Library\include",
+    )
+)
+
+SQLITE_LIBRARY_DIR: Path = Path(
+    os.environ.get(
+        "SQLITE_LIBRARY_DIR",
+        r"C:\Users\DELL\miniconda3\Library\lib",
+    )
+)
+
 COMPILER_FLAGS: list[str] = [
     COMPILER_OPTIMIZATION,
     f"-std={CPP_STANDARD}",
+    f"-I{SQLITE_INCLUDE_DIR}",
+    f"-L{SQLITE_LIBRARY_DIR}",
+    "-lsqlite3",
 ]
 
 # =============================================================================

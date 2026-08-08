@@ -8,6 +8,12 @@ from config import (
     GROQ_API_KEY,
     MODELS,
 )
+
+print(
+    "GROQ PROVIDER IMPORT KEY:",
+    GROQ_API_KEY[:10],
+    len(GROQ_API_KEY),
+)
 from providers.base_provider import BaseProvider
 from utils.logger import get_logger
 from utils.exceptions import ProviderError
@@ -50,6 +56,12 @@ class GroqProvider(BaseProvider):
             raise ProviderError(
                 "Groq model name cannot be empty."
             )
+
+        self._logger.info(
+            "Groq key prefix: %s | length: %s",
+            GROQ_API_KEY[:10],
+            len(GROQ_API_KEY),
+        )
 
         self._client = Groq(
             api_key=GROQ_API_KEY,

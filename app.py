@@ -13,21 +13,17 @@ if str(ROOT_DIR) not in sys.path:
 
 import streamlit as st
 
-from config import OUTPUT_DIR
-from config import DEFAULT_MODEL, DEFAULT_PROVIDER
+from config import (
+    DEFAULT_MODEL,
+    DEFAULT_PROVIDER,
+    MODELS,
+    OUTPUT_DIR,
+)
 from main import build_pipeline
 
 from leaderboard.manager import Leaderboard
 from leaderboard.leaderboard_store import LeaderboardStore
 
-
-OLLAMA_MODELS = [
-    "llama3.2:latest",
-]
-
-GROQ_MODELS = [
-    "llama-3.3-70b-versatile",
-]
 
 st.set_page_config(
     page_title="AI Code Migration Platform",
@@ -83,10 +79,9 @@ def render_configuration() -> tuple[str, str]:
         )
 
     with right_column:
-        if provider == "groq":
-            model_options = GROQ_MODELS
-        else:
-            model_options = OLLAMA_MODELS
+        model_options = list(
+            MODELS[provider].values()
+        )
 
         default_model = (
             DEFAULT_MODEL

@@ -75,5 +75,26 @@
         "benchmark_time": 0.048485680017620325,
         "execution_time": 0.048485680017620325,
         "overall_success": true
+    },
+    {
+        "provider_name": "Groq",
+        "model_name": "llama-3.3-70b-versatile",
+        "benchmark_time": 0.03652881998568773,
+        "execution_time": 0.03652881998568773,
+        "overall_success": true
+    },
+    {
+        "provider_name": "Groq",
+        "model_name": "llama-3.3-70b-versatile",
+        "benchmark_time": 0.04389629997313023,
+        "execution_time": 0.04389629997313023,
+        "overall_success": true
+    },
+    {
+        "provider_name": "Groq",
+        "model_name": "llama-3.3-70b-versatile",
+        "benchmark_time": 0.03563025994226336,
+        "execution_time": 0.03563025994226336,
+        "overall_success": true
     }
 ]
