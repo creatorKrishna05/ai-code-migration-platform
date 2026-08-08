@@ -3,10 +3,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from leaderboard.leaderboard_entry import LeaderboardEntry
+from .leaderboard_entry import LeaderboardEntry
+
 from utils.exceptions import AIPlatformError
 from utils.logger import get_logger
-
 
 class LeaderboardStore:
     """
