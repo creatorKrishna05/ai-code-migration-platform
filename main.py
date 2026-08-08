@@ -22,7 +22,7 @@ from translator.translator import Translator
 from utils.logger import get_logger
 from workspace.workspace_manager import WorkspaceManager
 
-from leaderboard.leaderboard import Leaderboard
+from leaderboard.manager import Leaderboard
 from leaderboard.leaderboard_store import LeaderboardStore
 
 

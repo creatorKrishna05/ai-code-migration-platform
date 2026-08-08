@@ -1,4 +1,4 @@
-from leaderboard.leaderboard import Leaderboard
+from leaderboard.manager import Leaderboard
 from leaderboard.leaderboard_entry import LeaderboardEntry
 
 
