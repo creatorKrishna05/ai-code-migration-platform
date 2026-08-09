@@ -321,7 +321,6 @@ def render_migration_results(
     provider: str,
     model: str,
 ) -> None:
-    """Render all migration results."""
 
     st.success(
         "Migration completed successfully! 🎉"
@@ -409,19 +408,21 @@ def main() -> None:
 
     render_header()
 
-    provider, model = render_configuration()
+    with st.form("migration_form"):
 
-    st.divider()
+        provider, model = render_configuration()
 
-    uploaded_file = render_source_upload()
+        st.divider()
 
-    st.divider()
+        uploaded_file = render_source_upload()
 
-    migrate_clicked = st.button(
-        "🚀 Migrate Code",
-        type="primary",
-        width="stretch",
-    )
+        st.divider()
+
+        migrate_clicked = st.form_submit_button(
+            "🚀 Migrate Code",
+            type="primary",
+            width="stretch",
+        )
 
     if migrate_clicked:
 
@@ -432,11 +433,14 @@ def main() -> None:
             return
 
         try:
-            report = run_migration(
-                uploaded_file=uploaded_file,
-                provider=provider,
-                model=model,
-            )
+            with st.spinner(
+                "Running AI code migration..."
+            ):
+                report = run_migration(
+                    uploaded_file=uploaded_file,
+                    provider=provider,
+                    model=model,
+                )
 
             st.session_state["migration_report"] = report
             st.session_state["migration_provider"] = provider
@@ -473,8 +477,11 @@ def main() -> None:
             provider=saved_provider,
             model=saved_model,
         )
+
     else:
+
         st.divider()
+
         render_leaderboard()
 
 if __name__ == "__main__":
