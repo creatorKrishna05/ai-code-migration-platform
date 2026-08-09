@@ -3,7 +3,9 @@ from types import SimpleNamespace
 from unittest.mock import Mock
 
 import main
-
+from utils.exceptions import (
+    AIPlatformError,
+)
 
 def test_main_success(monkeypatch) -> None:
     """Return zero when migration succeeds."""

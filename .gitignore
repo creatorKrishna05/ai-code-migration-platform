@@ -56,3 +56,6 @@ build/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Generated migration outputs
+outputs/

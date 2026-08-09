@@ -9,7 +9,10 @@ from cli.validators import (
     CLIValidator,
 )
 
+from config import MODELS
 from utils.logger import get_logger
+from utils.exceptions import AIPlatformError
+
 
 logger = get_logger(__name__)
 
@@ -33,6 +36,7 @@ def build_pipeline(
         BENCHMARK_RUNS,
         DEFAULT_PROVIDER,
         EXECUTION_TIMEOUT_SECONDS,
+      
     )
     from evaluator.evaluator import Evaluator
     from leaderboard.leaderboard_store import LeaderboardStore
@@ -43,6 +47,8 @@ def build_pipeline(
     from report.report_generator import ReportGenerator
     from translator.translator import Translator
     from workspace.workspace_manager import WorkspaceManager
+    from analyzer.python_analyzer import PythonAnalyzer
+  
 
     logger.info(
         "Building application dependencies."
@@ -60,8 +66,10 @@ def build_pipeline(
     )
 
     translator = Translator(
-        provider=provider,
+        provider=provider,       
     )
+
+    analyzer = PythonAnalyzer()
 
     compiler = Compiler()
 
@@ -94,6 +102,7 @@ def build_pipeline(
     pipeline = MigrationPipeline(
         workspace_manager=workspace_manager,
         translator=translator,
+        analyzer=analyzer,
         compiler=compiler,
         benchmark=benchmark,
         evaluator=evaluator,
@@ -208,10 +217,46 @@ def main() -> int:
             "Migration completed successfully."
         )
 
-        logger.info(
-            "Report: %s",
-            report,
+        print()
+        print("Migration completed successfully.")
+        print()
+
+        print(f"Provider: {provider_name}")
+
+        display_model = (
+            model_name
+            if model_name is not None
+            else next(iter(MODELS[provider_name].values()))
         )
+
+        print(f"Model: {display_model}")
+
+        print(
+            f"Translation: "
+            f"{'SUCCESS' if report.get('translation_success') else 'FAILED'}"
+        )
+        print(
+            f"Compilation: "
+            f"{'SUCCESS' if report.get('compilation_success') else 'FAILED'}"
+        )
+        print(
+            "Execution: "
+            f"{'SUCCESS' if report.get('execution_success') else 'FAILED'}"
+        )
+        print(
+            f"Benchmark: "
+            f"{report.get('benchmark_time', 0):.6f} seconds"
+        )
+        print(f"Output: {report.get('program_output', '')}")
+        print()
+        print("Generated files:")
+        print("  outputs/source.cpp")
+        print("  outputs/program.exe")
+
+        if args.report_json:
+            print("  outputs/report.json")
+
+        print()
 
         return 0
 
@@ -227,6 +272,19 @@ def main() -> int:
         )
 
         return 2
+
+    except AIPlatformError as exc:
+        logger.error(
+            "Migration failed: %s",
+            exc,
+        )
+
+        print(
+            f"Error: Migration failed: {exc}",
+            file=sys.stderr,
+        )
+
+        return 1
 
     except Exception as exc:
         logger.exception(

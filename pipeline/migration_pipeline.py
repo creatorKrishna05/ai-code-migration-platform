@@ -13,6 +13,8 @@ from report.report_generator import ReportGenerator
 from translator.translator import Translator
 from utils.logger import get_logger
 from workspace.workspace_manager import WorkspaceManager
+from analyzer.python_analyzer import PythonAnalyzer
+from utils.exceptions import ValidationError
 
 from config import (
     BENCHMARK_RUNS,
@@ -29,6 +31,7 @@ class MigrationPipeline:
         self,
         workspace_manager: WorkspaceManager,
         translator: Translator,
+        analyzer: PythonAnalyzer,
         compiler: Compiler,
         benchmark: Benchmark,
         evaluator: Evaluator,
@@ -46,6 +49,7 @@ class MigrationPipeline:
 
         self._workspace_manager = workspace_manager
         self._translator = translator
+        self._analyzer = analyzer
         self._compiler = compiler
         self._benchmark = benchmark
         self._evaluator = evaluator
@@ -93,10 +97,19 @@ class MigrationPipeline:
                 encoding="utf-8"
             )
 
+            analysis = self._analyzer.analyze(
+                source_code
+            )
+
             translated_code = (
                 self._translator.translate(
-                    source_code
+                    source_code,
+                    analysis,
                 )
+            )
+
+            self._validate_translation(
+                translated_code
             )
 
             executable_path = (
@@ -166,6 +179,20 @@ class MigrationPipeline:
 
         finally:
             self._workspace_manager.cleanup()
+
+
+    def _validate_translation(
+        self,
+        translated_code: str,
+    ) -> None:
+        """
+        Validate generated C++ source code.
+        """
+        if not translated_code.strip():
+            raise ValidationError(
+                "Generated C++ code is empty."
+            )
+        
 
     def _update_leaderboard(
         self,

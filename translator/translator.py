@@ -6,7 +6,7 @@ from utils.exceptions import (
     ValidationError,
     TranslationError,
 )
-
+from analyzer.python_analyzer import PythonAnalysis
 from translator.prompt_builder import (
     build_translation_prompts,
 )
@@ -58,6 +58,7 @@ class Translator:
     def translate(
         self,
         source_code: str,
+        analysis: PythonAnalysis,
     ) -> str:
 
         self._logger.info(
@@ -74,7 +75,8 @@ class Translator:
             )
 
         system_prompt, user_prompt = build_translation_prompts(
-            source_code
+            source_code,
+            analysis,
         )
         self._logger.info(
             "Sending translation request to %s.",

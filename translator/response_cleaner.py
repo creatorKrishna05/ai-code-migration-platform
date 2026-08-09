@@ -35,18 +35,6 @@ class ResponseCleaner:
             "Cleaning LLM response."
         )
         
-        response = self._remove_markdown(
-            response
-        )
-
-        response = self._remove_thinking(
-            response
-        )
-
-        response = self._extract_cpp(
-            response
-        )
-
         response = self._remove_explanation(
             response
         )

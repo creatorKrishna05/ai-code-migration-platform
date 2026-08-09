@@ -4,6 +4,7 @@ from unittest.mock import Mock
 import pytest
 
 from pipeline.migration_pipeline import MigrationPipeline
+from utils.exceptions import ValidationError
 
 
 @pytest.fixture
@@ -22,6 +23,7 @@ def pipeline_components(tmp_path: Path):
     """Create mocked pipeline dependencies."""
     workspace_manager = Mock()
     translator = Mock()
+    analyzer = Mock()
     compiler = Mock()
     benchmark = Mock()
     evaluator = Mock()
@@ -67,6 +69,7 @@ def pipeline_components(tmp_path: Path):
     return {
         "workspace_manager": workspace_manager,
         "translator": translator,
+        "analyzer": analyzer,
         "compiler": compiler,
         "benchmark": benchmark,
         "evaluator": evaluator,
@@ -114,7 +117,8 @@ def test_pipeline_reads_source_code(
     pipeline.run(source_file)
 
     pipeline_components["translator"].translate.assert_called_once_with(
-        "print('hello')"
+        "print('hello')",
+        pipeline_components["analyzer"].analyze.return_value,
     )
 
 
@@ -302,3 +306,85 @@ def test_pipeline_adds_leaderboard_entry(
     assert entry.benchmark_time == 0.25
     assert entry.execution_time == 0.25
     assert entry.overall_success is True
+
+
+def test_pipeline_rejects_empty_translation(
+    source_file: Path,
+    pipeline_components,
+) -> None:
+    """Reject empty generated C++ code."""
+    pipeline_components[
+        "translator"
+    ].translate.return_value = ""
+
+    pipeline = MigrationPipeline(
+        **pipeline_components,
+    )
+
+    with pytest.raises(
+        ValidationError,
+        match="Generated C\\+\\+ code is empty",
+    ):
+        pipeline.run(source_file)
+
+    pipeline_components[
+        "compiler"
+    ].compile.assert_not_called()
+
+
+def test_pipeline_stops_after_compilation_failure(
+    source_file: Path,
+    pipeline_components,
+) -> None:
+    """Pipeline should stop when compilation fails."""
+    pipeline_components[
+        "compiler"
+    ].compile.side_effect = RuntimeError(
+        "Compilation failed"
+    )
+
+    pipeline = MigrationPipeline(
+        **pipeline_components,
+    )
+
+    with pytest.raises(RuntimeError):
+        pipeline.run(source_file)
+
+    pipeline_components[
+        "benchmark"
+    ].benchmark.assert_not_called()
+
+    pipeline_components[
+        "workspace_manager"
+    ].cleanup.assert_called_once()
+
+
+def test_pipeline_stops_after_benchmark_failure(
+    source_file: Path,
+    pipeline_components,
+) -> None:
+    """Pipeline should stop when benchmarking fails."""
+    pipeline_components[
+        "benchmark"
+    ].benchmark.side_effect = RuntimeError(
+        "Execution failed"
+    )
+
+    pipeline = MigrationPipeline(
+        **pipeline_components,
+    )
+
+    with pytest.raises(RuntimeError):
+        pipeline.run(source_file)
+
+    pipeline_components[
+        "evaluator"
+    ].evaluate.assert_not_called()
+
+    pipeline_components[
+        "report_generator"
+    ].generate.assert_not_called()
+
+    pipeline_components[
+        "workspace_manager"
+    ].cleanup.assert_called_once()
