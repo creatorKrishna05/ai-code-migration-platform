@@ -3,12 +3,6 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from cli.arguments import parse_args
-from cli.validators import (
-    CLIValidationError,
-    CLIValidator,
-)
-
 from config import MODELS
 from utils.logger import get_logger
 from utils.exceptions import AIPlatformError
@@ -136,7 +130,11 @@ def main() -> int:
     Returns:
         Process exit code.
     """
-
+    from cli.arguments import parse_args
+    from cli.validators import (
+        CLIValidationError,
+        CLIValidator,
+    )
     from config import DEFAULT_PROVIDER
 
     try:
