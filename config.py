@@ -110,7 +110,7 @@ DEFAULT_PROVIDER: str = get_secret(
     "groq",
 )
 
-DEFAULT_MODEL: str = "llama-3.3-70b-versatile"
+DEFAULT_MODEL: str = "openai/gpt-oss-120b"
 
 PROVIDERS: dict[str, dict[str, bool]] = {
     "groq": {
@@ -133,30 +133,63 @@ PROVIDERS: dict[str, dict[str, bool]] = {
     },
 }
 
+MODELS: dict[str, dict[str, str]] = {
+    "groq": {
+        "GPT OSS 120B": "openai/gpt-oss-120b",
+        "Qwen 3.6 27B": "qwen/qwen3.6-27b",
+        "Llama 3.3 70B": "llama-3.3-70b-versatile",
+    },
+
+    "ollama": {
+        "Llama 3.2": "llama3.2",
+        "Qwen 2.5 Coder": "qwen2.5-coder",
+    },
+
+    "openai": {
+        "GPT-5": "gpt-5",
+    },
+
+    "anthropic": {
+        "Claude Sonnet 4": "claude-sonnet-4",
+    },
+
+    "google": {
+        "Gemini 2.5 Pro": "gemini-2.5-pro",
+    },
+
+    "xai": {
+        "Grok 4": "grok-4",
+    },
+}
+
 # =============================================================================
 # Model Registry
 # =============================================================================
 
 MODELS: dict[str, dict[str, str]] = {
     "groq": {
+        "GPT OSS 120B": "openai/gpt-oss-120b",
+        "Qwen 3.6 27B": "qwen/qwen3.6-27b",
         "Llama 3.3 70B": "llama-3.3-70b-versatile",
-        "DeepSeek R1 Distill Llama 70B": "deepseek-r1-distill-llama-70b",
-        "Qwen 3": "qwen/qwen3-32b",
     },
+
     "ollama": {
         "Llama 3.2": "llama3.2",
         "Qwen 2.5 Coder": "qwen2.5-coder",
     },
-    # Future Providers
+
     "openai": {
         "GPT-5": "gpt-5",
     },
+
     "anthropic": {
         "Claude Sonnet 4": "claude-sonnet-4",
     },
+
     "google": {
         "Gemini 2.5 Pro": "gemini-2.5-pro",
     },
+
     "xai": {
         "Grok 4": "grok-4",
     },
