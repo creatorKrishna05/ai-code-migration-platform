@@ -323,8 +323,6 @@ def render_migration_results(
 ) -> None:
     """Render all migration results."""
 
-    st.write("DEBUG REPORT:", report)
-    
     st.success(
         "Migration completed successfully! 🎉"
     )
@@ -362,10 +360,6 @@ def render_migration_results(
         report
     )
 
-    st.divider()
-
-    render_leaderboard()
-
 
 def run_migration(
     uploaded_file,
@@ -384,6 +378,7 @@ def run_migration(
             suffix=".py",
             delete=False,
         ) as temporary_file:
+
             temporary_file.write(
                 uploaded_file.getvalue()
             )
@@ -392,17 +387,14 @@ def run_migration(
                 temporary_file.name
             )
 
-        with st.spinner(
-            "Running AI code migration..."
-        ):
-            pipeline = build_pipeline(
-                provider_name=provider,
-                model_name=model,
-            )
+        pipeline = build_pipeline(
+            provider_name=provider,
+            model_name=model,
+        )
 
-            report = pipeline.run(
-                temporary_path
-            )
+        report = pipeline.run(
+            temporary_path
+        )
 
         return report
 
@@ -412,9 +404,9 @@ def run_migration(
                 missing_ok=True
             )
 
-
 def main() -> None:
     """Render the AI Code Migration Platform UI."""
+
     render_header()
 
     provider, model = render_configuration()
@@ -431,34 +423,59 @@ def main() -> None:
         width="stretch",
     )
 
-    if not migrate_clicked:
-        render_leaderboard()
-        return
+    if migrate_clicked:
 
-    if uploaded_file is None:
-        st.warning(
-            "Please upload a Python source file first."
-        )
-        return
+        if uploaded_file is None:
+            st.warning(
+                "Please upload a Python source file first."
+            )
+            return
 
-    try:
-        report = run_migration(
-            uploaded_file=uploaded_file,
-            provider=provider,
-            model=model,
-        )
+        try:
+            report = run_migration(
+                uploaded_file=uploaded_file,
+                provider=provider,
+                model=model,
+            )
+
+            st.session_state["migration_report"] = report
+            st.session_state["migration_provider"] = provider
+            st.session_state["migration_model"] = model
+
+            st.success(
+                "Migration completed successfully! 🎉"
+            )
+
+        except Exception as exc:
+            st.error(
+                f"Migration failed: {exc}"
+            )
+            return
+
+    report = st.session_state.get(
+        "migration_report"
+    )
+
+    saved_provider = st.session_state.get(
+        "migration_provider",
+        provider,
+    )
+
+    saved_model = st.session_state.get(
+        "migration_model",
+        model,
+    )
+
+    if report is not None:
 
         render_migration_results(
             report=report,
-            provider=provider,
-            model=model,
+            provider=saved_provider,
+            model=saved_model,
         )
-
-    except Exception as exc:
-        st.error(
-            f"Migration failed: {exc}"
-        )
-
+    else:
+        st.divider()
+        render_leaderboard()
 
 if __name__ == "__main__":
     main()
