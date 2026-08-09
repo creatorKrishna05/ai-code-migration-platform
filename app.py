@@ -13,12 +13,6 @@ from config import (
     OUTPUT_DIR,
 )
 
-from main import build_pipeline
-
-from leaderboard.manager import Leaderboard
-from leaderboard.leaderboard_store import LeaderboardStore
-
-
 st.set_page_config(
     page_title="AI Code Migration Platform",
     page_icon="🚀",
@@ -264,6 +258,10 @@ def render_report_download(report: dict) -> None:
 
 def render_leaderboard() -> None:
     """Render the migration leaderboard."""
+
+    from leaderboard.manager import Leaderboard
+    from leaderboard.leaderboard_store import LeaderboardStore
+
     st.subheader("🏆 Leaderboard")
 
     try:
@@ -375,6 +373,9 @@ def run_migration(
     model: str,
 ) -> dict:
     """Execute the migration pipeline."""
+
+    from main import build_pipeline
+
     temporary_path: Path | None = None
 
     try:
