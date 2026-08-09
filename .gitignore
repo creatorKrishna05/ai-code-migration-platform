@@ -59,3 +59,9 @@ build/
 
 # Generated migration outputs
 outputs/
+
+# Runtime outputs
+outputs/*.json
+outputs/*.cpp
+outputs/*.exe
+outputs/program

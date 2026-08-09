@@ -1,5 +1,15 @@
-
 from __future__ import annotations
+
+import importlib
+import sys
+
+for module_name in (
+    "cli.arguments",
+    "cli.validators",
+):
+    sys.modules.pop(module_name, None)
+
+importlib.invalidate_caches()
 
 import json
 import tempfile
