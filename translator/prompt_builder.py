@@ -331,6 +331,23 @@ Analysis of Python source:
 - Exceptions: {analysis.exception_count}
 - Complexity: {analysis.complexity}
 
+EXCEPTION TRANSLATION RULES:
+
+- Translate all Python exception classes into valid C++20 exception classes.
+- Preserve the original exception inheritance hierarchy.
+- Python classes inheriting from Exception must become concrete C++ exception classes.
+- Never make a normal Python exception class abstract.
+- Never generate a pure virtual `what()` method.
+- Every concrete exception class must implement:
+    const char* what() const noexcept override
+- Exception constructors must accept and store a `std::string` message.
+- Python code such as:
+    raise AIStudioError("Test exception")
+  must translate to valid C++ such as:
+    throw AIStudioError("Test exception");
+- The generated C++ must allow direct instantiation of every normal Python exception class.
+- Generated exception classes must compile successfully with C++20.
+
 Python source:
 
 {source_code}
