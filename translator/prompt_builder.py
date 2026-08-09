@@ -348,6 +348,60 @@ EXCEPTION TRANSLATION RULES:
 - The generated C++ must allow direct instantiation of every normal Python exception class.
 - Generated exception classes must compile successfully with C++20.
 
+### C++20 FORMAT SAFETY RULES:
+
+1. Prefer NOT to use std::format.
+
+2. NEVER pass a runtime std::string as the format string to std::format.
+
+   FORBIDDEN:
+       std::string fmt = "...";
+       std::format(fmt, value);
+
+3. A runtime std::string MUST NOT be used where C++20 requires a
+   compile-time format string.
+
+4. If dynamic formatting is required, use one of:
+   - std::ostringstream
+   - std::stringstream
+   - std::cout
+   - std::cerr
+   - std::string concatenation
+   - std::to_string
+   - appropriate STL operations
+
+5. Only use std::format when the format string is a compile-time
+   constant and the usage is guaranteed to compile with GCC 14.
+
+6. When there is any doubt about std::format compatibility, DO NOT use
+   std::format. Use std::ostringstream or string concatenation instead.
+
+7. The generated C++20 program MUST compile with:
+
+   g++ -std=c++20 -O3
+
+8. Do not use C++23-only features.
+
+9. Do not assume that a C++20 library feature is available merely
+   because it exists in newer C++ standards.
+
+10. Prefer portable, conservative C++20 code over unnecessarily
+    sophisticated language/library features.
+
+### COMPILATION REQUIREMENT
+
+The generated source will be compiled with:
+
+g++ -std=c++20 -O3
+
+Before returning the code, mentally verify that:
+- all headers exist in standard C++20/GCC 14
+- no runtime string is passed where a consteval format string is required
+- no abstract class is instantiated
+- all generated classes/functions are compilable
+- main() is valid
+- the program does not depend on Python libraries
+
 Python source:
 
 {source_code}
