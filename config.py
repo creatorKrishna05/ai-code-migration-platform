@@ -3,6 +3,7 @@ Central configuration for the AI Code Migration Platform.
 
 Responsibilities:
 - Load environment variables.
+- Load Streamlit Cloud secrets safely.
 - Define project paths.
 - Register supported providers and models.
 - Store compiler, benchmark and translation settings.
@@ -18,36 +19,11 @@ Design Principles:
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-def get_secret(
-    key: str,
-    default: str = "",
-) -> str:
-    """
-    Load configuration from environment variables
-    with Streamlit secrets as fallback.
-    """
-
-    # First priority: .env / environment variables
-    value = os.getenv(key)
-
-    if value:
-        return value
-
-    # Second priority: Streamlit secrets
-    try:
-        import streamlit as st
-
-        if key in st.secrets:
-            return st.secrets[key]
-
-    except Exception:
-        pass
-
-    return default
 
 # =============================================================================
 # Environment
@@ -55,12 +31,90 @@ def get_secret(
 
 load_dotenv()
 
+
+# =============================================================================
+# Secrets
+# =============================================================================
+
+
+def get_secret(
+    key: str,
+    default: str = "",
+) -> str:
+    """
+    Load a configuration value safely.
+
+    Priority:
+    1. Environment variable
+    2. Streamlit secrets at root level
+    3. Streamlit secrets under [config]
+    4. Default value
+
+    This function is safe for:
+    - Local development
+    - .env files
+    - Streamlit Cloud
+    - CI/CD
+    """
+
+    # -------------------------------------------------------------------------
+    # 1. Environment variable
+    # -------------------------------------------------------------------------
+
+    value = os.getenv(key)
+
+    if value:
+        return value
+
+
+    # -------------------------------------------------------------------------
+    # 2. Streamlit secrets
+    # -------------------------------------------------------------------------
+
+    try:
+        import streamlit as st
+
+        secrets = st.secrets
+
+        # Root-level secret:
+        #
+        # GROQ_API_KEY = "..."
+        #
+        if key in secrets:
+            value = secrets[key]
+
+            if isinstance(value, str) and value:
+                return value
+
+        # Nested secrets:
+        #
+        # [config]
+        # GROQ_API_KEY = "..."
+        #
+        config_section = secrets.get("config")
+
+        if config_section is not None:
+            if key in config_section:
+                value = config_section[key]
+
+                if isinstance(value, str) and value:
+                    return value
+
+    except Exception:
+        # Configuration loading must never fail merely because
+        # Streamlit secrets are unavailable.
+        pass
+
+    return default
+
+
 # =============================================================================
 # Application
 # =============================================================================
 
 APP_NAME: str = "AI Code Migration Platform"
 APP_VERSION: str = "1.0.0"
+
 
 # =============================================================================
 # Project Paths
@@ -81,25 +135,41 @@ for directory in (
     REPORT_DIR,
     HISTORY_DIR,
 ):
-    directory.mkdir(parents=True, exist_ok=True)
+    directory.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
 
 # =============================================================================
-# Environment Variables
+# Environment Variables / Secrets
 # =============================================================================
 
-GROQ_API_KEY: str = get_secret("GROQ_API_KEY")
+GROQ_API_KEY: str = get_secret(
+    "GROQ_API_KEY",
+)
 
-OLLAMA_BASE_URL: str = os.getenv(
+OLLAMA_BASE_URL: str = get_secret(
     "OLLAMA_BASE_URL",
     "http://localhost:11434",
 )
 
-# Future Provider Keys
+OPENAI_API_KEY: str = get_secret(
+    "OPENAI_API_KEY",
+)
 
-OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
-ANTHROPIC_API_KEY: str = os.getenv("ANTHROPIC_API_KEY", "")
-GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "")
-XAI_API_KEY: str = os.getenv("XAI_API_KEY", "")
+ANTHROPIC_API_KEY: str = get_secret(
+    "ANTHROPIC_API_KEY",
+)
+
+GOOGLE_API_KEY: str = get_secret(
+    "GOOGLE_API_KEY",
+)
+
+XAI_API_KEY: str = get_secret(
+    "XAI_API_KEY",
+)
+
 
 # =============================================================================
 # Provider Configuration
@@ -110,7 +180,11 @@ DEFAULT_PROVIDER: str = get_secret(
     "groq",
 )
 
-DEFAULT_MODEL: str = "openai/gpt-oss-120b"
+DEFAULT_MODEL: str = get_secret(
+    "DEFAULT_MODEL",
+    "openai/gpt-oss-120b",
+)
+
 
 PROVIDERS: dict[str, dict[str, bool]] = {
     "groq": {
@@ -132,6 +206,7 @@ PROVIDERS: dict[str, dict[str, bool]] = {
         "enabled": False,
     },
 }
+
 
 MODELS: dict[str, dict[str, str]] = {
     "groq": {
@@ -172,53 +247,90 @@ CPP_STANDARD: str = "c++20"
 
 COMPILER_OPTIMIZATION: str = "-O3"
 
-SQLITE_INCLUDE_DIR: Path = Path(
-    os.environ.get(
-        "SQLITE_INCLUDE_DIR",
-        r"C:\Users\DELL\miniconda3\Library\include",
-    )
-)
 
-SQLITE_LIBRARY_DIR: Path = Path(
-    os.environ.get(
-        "SQLITE_LIBRARY_DIR",
-        r"C:\Users\DELL\miniconda3\Library\lib",
-    )
-)
+# SQLite paths are platform dependent.
+#
+# On Windows:
+#     Use Miniconda SQLite paths when available.
+#
+# On Linux / Streamlit Cloud:
+#     Do not inject Windows paths into compiler flags.
 
-COMPILER_FLAGS: list[str] = [
-    COMPILER_OPTIMIZATION,
-    f"-std={CPP_STANDARD}",
-    f"-I{SQLITE_INCLUDE_DIR}",
-    f"-L{SQLITE_LIBRARY_DIR}",
-    
-]
+if sys.platform.startswith("win"):
+    SQLITE_INCLUDE_DIR: Path = Path(
+        os.environ.get(
+            "SQLITE_INCLUDE_DIR",
+            r"C:\Users\DELL\miniconda3\Library\include",
+        )
+    )
+
+    SQLITE_LIBRARY_DIR: Path = Path(
+        os.environ.get(
+            "SQLITE_LIBRARY_DIR",
+            r"C:\Users\DELL\miniconda3\Library\lib",
+        )
+    )
+
+    COMPILER_FLAGS: list[str] = [
+        COMPILER_OPTIMIZATION,
+        f"-std={CPP_STANDARD}",
+        f"-I{SQLITE_INCLUDE_DIR}",
+        f"-L{SQLITE_LIBRARY_DIR}",
+    ]
+
+else:
+    SQLITE_INCLUDE_DIR = Path(
+        os.environ.get(
+            "SQLITE_INCLUDE_DIR",
+            "/usr/include",
+        )
+    )
+
+    SQLITE_LIBRARY_DIR = Path(
+        os.environ.get(
+            "SQLITE_LIBRARY_DIR",
+            "/usr/lib",
+        )
+    )
+
+    COMPILER_FLAGS = [
+        COMPILER_OPTIMIZATION,
+        f"-std={CPP_STANDARD}",
+    ]
+
 
 # =============================================================================
 # Benchmark Configuration
 # =============================================================================
 
 BENCHMARK_RUNS: int = 5
+
 BENCHMARK_WARMUP_RUNS: int = 1
+
 EXECUTION_TIMEOUT_SECONDS: int = 10
+
 
 # =============================================================================
 # Translation Configuration
 # =============================================================================
 
 SOURCE_LANGUAGE: str = "Python"
+
 TARGET_LANGUAGE: str = "Modern C++"
 
 AUTO_FORMAT_OUTPUT: bool = True
+
 SAVE_GENERATED_CODE: bool = True
+
 
 # =============================================================================
 # Supported Files
 # =============================================================================
 
-SUPPORTED_EXTENSIONS: tuple[str, ...] = (                                   
+SUPPORTED_EXTENSIONS: tuple[str, ...] = (
     ".py",
 )
+
 
 # =============================================================================
 # Configuration Validation
@@ -233,6 +345,7 @@ def validate_configuration() -> None:
         ValueError:
             If any critical configuration value is invalid.
     """
+
     if not DEFAULT_PROVIDER.strip():
         raise ValueError(
             "DEFAULT_PROVIDER cannot be empty."
