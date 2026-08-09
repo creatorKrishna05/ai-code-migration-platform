@@ -1,725 +1,854 @@
-# 🚀 AI Code Migration Platform
+# ⚡ AI Code Migration Platform
 
-> **AI-powered Python → Modern C++20 code migration, compilation, benchmarking, evaluation, and model performance comparison.**
+<p align="center">
 
-## 📌 Overview
+**AI-powered Python → C++20 code migration with automated compilation, execution, benchmarking, evaluation, and reporting.**
 
-**AI Code Migration Platform** is an end-to-end LLM engineering platform that converts Python source code into optimized **Modern C++20** using configurable LLM providers.
+<br>
 
-The platform goes beyond simple translation. Generated C++ code is automatically:
+<a href="https://ai-code-migration-platform-zievvdkcz9mr83emx2brgv.streamlit.app/">
+  <strong>🚀 Live Demo</strong>
+</a>
+&nbsp;&nbsp;•&nbsp;&nbsp;
+<a href="https://github.com/creatorKrishna05/ai-code-migration-platform">
+  <strong>💻 GitHub Repository</strong>
+</a>
 
-* Compiled with a C++20 compiler
-* Executed and validated
-* Benchmarked across multiple runs
-* Evaluated for migration success
-* Stored as a migration report
-* Added to a persistent model/provider leaderboard
+</p>
 
-The platform currently supports both **Groq cloud models** and **Ollama local models**.
+<p align="center">
 
----
+![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge\&logo=python\&logoColor=white)
+![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C?style=for-the-badge\&logo=cplusplus\&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-1.61.1-FF4B4B?style=for-the-badge\&logo=streamlit\&logoColor=white)
+![Groq](https://img.shields.io/badge/Groq-LLM-orange?style=for-the-badge)
+![Tests](https://img.shields.io/badge/Tests-170%20Passed-success?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
-## ✨ Features
-
-* 🐍 Python → Modern C++20 translation
-* 🤖 Multi-provider LLM architecture
-* ⚡ Groq API support
-* 🦙 Ollama local LLM support
-* 🔌 Provider/model abstraction
-* 🛠️ Automatic C++20 compilation
-* ▶️ Generated executable execution
-* 📊 Runtime benchmarking
-* 🧠 Migration evaluation
-* 📄 JSON migration reports
-* 💻 Generated C++ source viewer
-* ⬇️ Download generated C++ source
-* 🏆 Persistent model/provider leaderboard
-* 🧹 Temporary workspace cleanup
-* 🖥️ Streamlit web interface
-* 💻 Production-style CLI
-* 🧪 Automated regression test suite
-* 🔐 Environment-based API key management
-* ⚙️ Centralized application configuration
+</p>
 
 ---
 
-## 🏗️ Architecture
+## 🚀 Live Application
 
+### **Try the AI Code Migration Platform**
 
-                    Python Source
-                         │
-                         ▼
-                  ┌─────────────┐
-                  │ CLI / UI    │
-                  └──────┬──────┘
-                         │
-                         ▼
-                  ┌─────────────┐
-                  │  Provider   │
-                  │   Factory   │
-                  └──────┬──────┘
-                         │
-              ┌──────────┴──────────┐
-              ▼                     ▼
-          ┌────────┐            ┌────────┐
-          │  Groq  │            │ Ollama │
-          └────┬───┘            └────┬───┘
-               └──────────┬──────────┘
-                          ▼
-                  ┌─────────────┐
-                  │ Translator  │
-                  └──────┬──────┘
-                         │
-                         ▼
-                    Modern C++20
-                         │
-                         ▼
-                  ┌─────────────┐
-                  │   Compiler  │
-                  └──────┬──────┘
-                         │
-                         ▼
-                    Executable
-                         │
-                         ▼
-                  ┌─────────────┐
-                  │  Executor   │
-                  └──────┬──────┘
-                         │
-                         ▼
-                  ┌─────────────┐
-                  │  Benchmark  │
-                  └──────┬──────┘
-                         │
-                         ▼
-                  ┌─────────────┐
-                  │  Evaluator  │
-                  └──────┬──────┘
-                         │
-                         ▼
-                  ┌─────────────┐
-                  │    Report   │
-                  └──────┬──────┘
-                         │
-                ┌────────┴────────┐
-                ▼                 ▼
-         Output Manager       Leaderboard
-                │                 │
-                └────────┬────────┘
-                         ▼
-                  Streamlit UI
+👉 **https://ai-code-migration-platform-zievvdkcz9mr83emx2brgv.streamlit.app/**
 
+The application is deployed on **Streamlit Community Cloud** and provides an end-to-end Python-to-C++20 migration workflow.
+
+### What the live application does
+
+```text
+Python Source
+      │
+      ▼
+   AI Analysis
+      │
+      ▼
+Python → C++20
+      │
+      ▼
+ C++ Compilation
+      │
+      ▼
+ Executable
+      │
+      ▼
+   Execution
+      │
+      ▼
+ Benchmarking
+      │
+      ▼
+  Evaluation
+      │
+      ▼
+ Migration Report
+      │
+      ▼
+  Leaderboard
+```
 
 ---
 
-## 🤖 Supported Providers
+# 🧠 Overview
 
-### ⚡ Groq
+**AI Code Migration Platform** is a production-oriented AI application designed to automate the migration of Python programs into **standalone, compilable modern C++20 programs**.
 
-Groq is the default cloud provider.
+Unlike a basic code translator, the platform validates the entire migration lifecycle:
 
-**Default model:**
+> **Translate → Analyze → Compile → Execute → Benchmark → Evaluate → Report**
 
-
-llama-3.3-70b-versatile
-
-
-Supported models registered in the platform include:
-
-llama-3.3-70b-versatile
-deepseek-r1-distill-llama-70b
-qwen/qwen3-32b
-
-
-### 🦙 Ollama
-
-Ollama provides local model execution without requiring a cloud API.
-
-Currently tested successfully with:
-
-
-llama3.2
-
-
-The installed Ollama model may appear as:
-
-
-llama3.2:latest
-
-The application internally resolves the configured migration model to:
-
-llama3.2
-
-
-Example:
-
-ollama list
-
-The `nomic-embed-text` model is an embedding model and is **not used for code migration**.
+The system uses an extensible provider architecture so different LLM backends can be integrated without changing the core migration pipeline.
 
 ---
 
-## 🧰 Technology Stack
+# ✨ Key Capabilities
 
-| Component       | Technology                                |
-| --------------- | ----------------------------------------- |
-| Language        | Python                                    |
-| Target Language | Modern C++20                              |
-| Cloud LLM       | Groq                                      |
-| Local LLM       | Ollama                                    |
-| Web UI          | Streamlit                                 |
-| Compiler        | g++                                       |
-| Testing         | Pytest                                    |
-| Persistence     | JSON                                      |
-| Configuration   | Environment variables / Streamlit secrets |
-| Architecture    | Modular Service Architecture              |
+| Capability                    | Status |
+| ----------------------------- | :----: |
+| Python → C++20 translation    |    ✅   |
+| LLM-powered migration         |    ✅   |
+| Groq provider                 |    ✅   |
+| Ollama provider               |    ✅   |
+| Provider factory architecture |    ✅   |
+| Python source analysis        |    ✅   |
+| Automatic C++ compilation     |    ✅   |
+| Executable validation         |    ✅   |
+| Runtime execution             |    ✅   |
+| Multi-run benchmarking        |    ✅   |
+| Migration evaluation          |    ✅   |
+| JSON reporting                |    ✅   |
+| Leaderboard                   |    ✅   |
+| CLI interface                 |    ✅   |
+| Streamlit interface           |    ✅   |
+| Structured logging            |    ✅   |
+| Centralized exceptions        |    ✅   |
+| Automated test suite          |    ✅   |
+| Cloud deployment              |    ✅   |
 
 ---
 
-## 📁 Project Structure
+# 🏗️ System Architecture
 
+```text
+                         ┌─────────────────────────┐
+                         │       User / Client      │
+                         └────────────┬────────────┘
+                                      │
+                       ┌──────────────▼──────────────┐
+                       │       CLI / Streamlit       │
+                       └──────────────┬──────────────┘
+                                      │
+                       ┌──────────────▼──────────────┐
+                       │       Input Validation      │
+                       └──────────────┬──────────────┘
+                                      │
+                       ┌──────────────▼──────────────┐
+                       │      Provider Factory       │
+                       └──────────────┬──────────────┘
+                                      │
+                   ┌──────────────────┴──────────────────┐
+                   │                                     │
+          ┌────────▼────────┐                  ┌─────────▼────────┐
+          │      Groq       │                  │      Ollama      │
+          │      LLM        │                  │       LLM        │
+          └────────┬────────┘                  └─────────┬────────┘
+                   │                                     │
+                   └──────────────────┬──────────────────┘
+                                      │
+                       ┌──────────────▼──────────────┐
+                       │        Translator           │
+                       │       Python → C++20        │
+                       └──────────────┬──────────────┘
+                                      │
+                       ┌──────────────▼──────────────┐
+                       │      Python Analyzer         │
+                       └──────────────┬──────────────┘
+                                      │
+                       ┌──────────────▼──────────────┐
+                       │         Compiler             │
+                       │          g++ / C++20         │
+                       └──────────────┬──────────────┘
+                                      │
+                       ┌──────────────▼──────────────┐
+                       │         Executor             │
+                       └──────────────┬──────────────┘
+                                      │
+                       ┌──────────────▼──────────────┐
+                       │        Benchmark             │
+                       │      Multiple Runs           │
+                       └──────────────┬──────────────┘
+                                      │
+                       ┌──────────────▼──────────────┐
+                       │         Evaluator            │
+                       └──────────────┬──────────────┘
+                                      │
+                       ┌──────────────▼──────────────┐
+                       │      Report Generator        │
+                       └──────────────┬──────────────┘
+                                      │
+                       ┌──────────────▼──────────────┐
+                       │       Output Manager         │
+                       └──────────────┬──────────────┘
+                                      │
+                       ┌──────────────▼──────────────┐
+                       │         Leaderboard          │
+                       └─────────────────────────────┘
+```
 
+---
+
+# 🔄 End-to-End Migration Workflow
+
+The platform treats code migration as a complete engineering pipeline rather than a single LLM request.
+
+### 1. Source Validation
+
+The input Python file is validated before the migration begins.
+
+### 2. LLM Translation
+
+The selected provider generates standalone modern **C++20** source code.
+
+### 3. Source Analysis
+
+The Python source is analyzed to provide additional structural information to the migration process.
+
+### 4. Compilation
+
+Generated C++ is compiled using the configured C++ compiler and C++20 standard.
+
+### 5. Execution
+
+The compiled executable is executed with configurable timeout protection.
+
+### 6. Benchmarking
+
+The generated program is executed multiple times to calculate runtime performance.
+
+### 7. Evaluation
+
+Translation, compilation, execution, and benchmark results are aggregated into an overall migration result.
+
+### 8. Reporting
+
+A structured migration report is generated.
+
+### 9. Leaderboard
+
+Migration results can be recorded for performance comparison.
+
+---
+
+# 🤖 LLM Provider Architecture
+
+The project uses a provider abstraction to keep LLM integrations independent from the migration pipeline.
+
+```text
+                 ┌──────────────────────┐
+                 │    BaseProvider      │
+                 └──────────┬───────────┘
+                            │
+                 ┌──────────┴───────────┐
+                 │                      │
+        ┌────────▼────────┐    ┌────────▼────────┐
+        │  GroqProvider   │    │ OllamaProvider  │
+        └─────────────────┘    └─────────────────┘
+```
+
+### Groq
+
+The deployed application currently uses:
+
+```text
+Provider: Groq
+Model: openai/gpt-oss-120b
+```
+
+### Ollama
+
+Ollama support allows local LLM execution during development and experimentation.
+
+The provider factory makes it possible to add future providers without rewriting the migration pipeline.
+
+---
+
+# 🛠️ Technology Stack
+
+### Core
+
+* **Python**
+* **C++20**
+* **g++**
+
+### AI / LLM
+
+* **Groq**
+* **Ollama**
+
+### Application
+
+* **Streamlit**
+* **argparse**
+
+### Engineering
+
+* **Pytest**
+* **Ruff**
+* **Black**
+* **python-dotenv**
+* **Structured logging**
+* **Custom exception hierarchy**
+
+### Deployment
+
+* **GitHub**
+* **Streamlit Community Cloud**
+
+---
+
+# 📂 Project Structure
+
+```text
 AI-Code-Migration-Platform/
 │
 ├── analyzer/
+│   ├── __init__.py
 │   └── python_analyzer.py
 │
 ├── benchmark/
+│   ├── __init__.py
 │   └── benchmark.py
 │
 ├── cli/
+│   ├── __init__.py
 │   ├── arguments.py
 │   └── validators.py
 │
 ├── compiler/
+│   ├── __init__.py
 │   ├── compiler.py
 │   └── executor.py
 │
 ├── evaluator/
+│   ├── __init__.py
 │   └── evaluator.py
 │
 ├── leaderboard/
-│   ├── leaderboard.py
+│   ├── __init__.py
 │   ├── leaderboard_entry.py
 │   ├── leaderboard_store.py
 │   └── manager.py
 │
-├── outputs/
-│   └── output_manager.py
-│
 ├── pipeline/
+│   ├── __init__.py
 │   └── migration_pipeline.py
 │
 ├── providers/
-│   ├── groq/
-│   ├── ollama/
+│   ├── __init__.py
 │   ├── base_provider.py
+│   ├── groq_provider.py
+│   ├── ollama_provider.py
 │   └── provider_factory.py
 │
 ├── report/
+│   ├── __init__.py
 │   └── report_generator.py
 │
 ├── translator/
+│   ├── __init__.py
 │   ├── prompt_builder.py
 │   └── translator.py
 │
 ├── utils/
+│   ├── __init__.py
 │   ├── exceptions.py
-│   ├── logger.py
-│   └── helpers.py
+│   ├── helpers.py
+│   └── logger.py
 │
 ├── workspace/
+│   ├── __init__.py
 │   └── workspace_manager.py
 │
 ├── tests/
+│   ├── test_analyzer/
+│   ├── test_benchmark/
+│   ├── test_cli/
+│   ├── test_compiler/
+│   ├── test_evaluator/
+│   ├── test_groq/
+│   ├── test_leaderboard/
+│   ├── test_pipeline/
+│   ├── test_report/
+│   ├── test_translator/
+│   ├── test_workspace/
+│   └── test_main.py
 │
 ├── app.py
-├── main.py
 ├── config.py
+├── main.py
 ├── requirements.txt
+├── .env.example
+├── .gitignore
+├── LICENSE
 └── README.md
-
+```
 
 ---
 
-# 🚀 Getting Started
+# ⚙️ Getting Started
 
-## 1. Clone the Repository
+## Prerequisites
 
+Make sure the following are installed:
 
-git clone <YOUR_GITHUB_REPOSITORY_URL>
-cd AI-Code-Migration-Platform
+* Python 3.x
+* Git
+* g++
+* An LLM provider/API key
 
+---
 
-## 2. Create a Virtual Environment
+## 1. Clone
 
+```bash
+git clone https://github.com/creatorKrishna05/ai-code-migration-platform.git
+cd ai-code-migration-platform
+```
+
+---
+
+## 2. Create Virtual Environment
+
+### Windows
+
+```bash
 python -m venv .venv
-
-
-Activate on Windows:
-
 .venv\Scripts\activate
+```
+
+### Linux / macOS
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+---
 
 ## 3. Install Dependencies
 
-
+```bash
 pip install -r requirements.txt
-
-
----
-
-## 4. Configure Environment Variables
-
-Create a `.env` file:
-
-
-GROQ_API_KEY=your_groq_api_key
-OLLAMA_BASE_URL=http://localhost:11434
-
-
-Never commit `.env` or API keys to GitHub.
+```
 
 ---
 
-# ⚡ Groq Setup
+# 🔐 Configuration
 
-Set your Groq API key in `.env`:
-
-
-GROQ_API_KEY=your_groq_api_key
-
-The default provider is:
-
-groq
-
-The default model is:
-
-
-llama-3.3-70b-versatile
-
----
-
-# 🦙 Ollama Setup
-
-Install Ollama and make sure the Ollama service is running.
-
-Verify installed models:
-
-
-ollama list
-
+Create a `.env` file from `.env.example`.
 
 Example:
 
-NAME
-llama3.2:latest
-nomic-embed-text:latest
+```env
+GROQ_API_KEY=your_groq_api_key
+```
 
+For Streamlit Cloud, configure secrets through the application's deployment settings.
 
-For migration, use:
-
-llama3.2
-
-Example CLI migration:
-
-
-python main.py migrate examples/sample.py --provider ollama --report-json
-
-
-Ollama migration has been successfully verified end-to-end.
+> **Never commit API keys or credentials to GitHub.**
 
 ---
 
-# 💻 CLI Usage
+# 💻 CLI
 
-The platform provides a production-style command-line interface.
+The platform includes a complete command-line interface.
 
-## Default Migration
+### Basic migration
 
-
+```bash
 python main.py migrate examples/sample.py
+```
 
+### Select provider
 
-## Generate JSON Report
+```bash
+python main.py migrate examples/sample.py --provider groq
+```
 
-python main.py migrate examples/sample.py --report-json
+### Select model
 
-
-## Specify Provider
-
-
-python main.py migrate examples/sample.py --provider groq --report-json
-
-
-## Specify Provider and Model
-
-
+```bash
 python main.py migrate examples/sample.py \
     --provider groq \
-    --model llama-3.3-70b-versatile \
-    --report-json
+    --model "openai/gpt-oss-120b"
+```
 
+### Configure benchmark runs
 
-Ollama:
+```bash
+python main.py migrate examples/sample.py --benchmark-runs 5
+```
 
-python main.py migrate examples/sample.py \
-    --provider ollama \
-    --report-json
+### Configure execution timeout
 
-The CLI automatically resolves the default model registered for the selected provider.
+```bash
+python main.py migrate examples/sample.py --timeout 30
+```
 
----
+### Generate JSON report
 
-# 🔄 Migration Pipeline
-
-
-Python Source
-      ↓
-CLI Validation
-      ↓
-Provider Factory
-      ↓
-LLM Provider
-      ↓
-Translation
-      ↓
-C++20 Compilation
-      ↓
-Executable Execution
-      ↓
-Benchmarking
-      ↓
-Evaluation
-      ↓
-Migration Report
-      ↓
-Output Persistence
-      ↓
-Leaderboard
-
-
----
-
-# 🖥️ Streamlit Application
-
-Run:
-
-
-streamlit run app.py
-
-
-The application provides:
-
-* Provider selection
-* Model selection
-* Python file upload
-* Migration execution
-* Translation status
-* Compilation status
-* Execution status
-* Benchmark results
-* Program output
-* Generated C++20 source viewer
-* C++ source download
-* Migration report download
-* Model/provider leaderboard
-
-### Application Flow
-
-1. Select an LLM provider.
-2. Select the provider-specific model.
-3. Upload a Python `.py` file.
-4. Click **Migrate Code**.
-5. The platform translates Python into C++20.
-6. Generated C++ is compiled.
-7. The executable is executed.
-8. Runtime performance is benchmarked.
-9. The migration is evaluated.
-10. A migration report is generated.
-11. Results are stored in the leaderboard.
-12. Generated artifacts become available for download.
-
----
-
-# 🧪 Testing
-
-Run the complete test suite:
-
-python -m pytest -q
-
-### Current Test Status
-
-
-170 passed
-
-Latest verified result:
-
-170 passed in 3.18s
-
-
-The project maintains automated tests across CLI validation, providers, translation, compilation, execution, benchmarking, evaluation, reporting, leaderboard functionality, and pipeline behavior.
-
----
-
-# ✅ End-to-End Verification
-
-The complete migration pipeline has been successfully verified using:
-
-
+```bash
 python main.py migrate examples/sample.py --report-json
+```
 
+---
 
-Verified stages:
+# 🌐 Run the Web Application
 
-Translation      ✅
-Compilation      ✅
-Execution        ✅
-Benchmarking     ✅
-Evaluation       ✅
-Report Generation ✅
-Output Persistence ✅
-Leaderboard       ✅
-Workspace Cleanup ✅
+Start Streamlit locally:
 
+```bash
+streamlit run app.py
+```
 
-Example result:
+Then open the local Streamlit URL displayed in the terminal.
 
+---
 
-Provider: groq
-Model: llama-3.3-70b-versatile
-Translation: SUCCESS
-Compilation: SUCCESS
-Execution: SUCCESS
-Benchmark: ~0.03 seconds
-Output: 30
+# 📊 Benchmarking
 
-A more complex migration example has also been successfully tested:
+The benchmark system executes the generated program multiple times and calculates the average runtime.
 
+Example production verification:
 
-python main.py migrate examples/complex_sample.py --report-json
+```text
+Benchmark runs:       5
+Average execution:    0.001900 seconds
+```
 
+This provides a simple performance signal for generated C++ programs.
 
-Verified output:
+---
 
+# 📄 Output Artifacts
 
-Output: 60
+A successful migration can generate:
 
+```text
+outputs/
+├── source.cpp
+├── program
+├── report.json
+└── leaderboard.json
+```
 
-Ollama has also been successfully verified:
+On Windows, the compiled executable may use:
 
+```text
+program.exe
+```
 
-python main.py migrate examples/sample.py --provider ollama --report-json
-
-
-Verified:
-
-
-Provider: ollama
-Model: llama3.2
-Translation: SUCCESS
-Compilation: SUCCESS
-Execution: SUCCESS
-Output: 30
+The exact executable name depends on the operating system.
 
 ---
 
 # 🏆 Leaderboard
 
-Successful migrations can be recorded with:
+The leaderboard tracks migration results and provides a foundation for comparing migration performance.
 
-* Provider
-* Model
-* Benchmark time
-* Execution time
-* Overall success
+Current local storage:
 
-Results are persisted to:
-
-
+```text
 outputs/leaderboard.json
+```
 
-
-Successful migrations are ranked ahead of failed migrations, with faster benchmark results receiving better rankings.
-
----
-
-# 📊 Migration Outputs
-
-After a successful migration, the platform generates:
-
-
-outputs/
-├── source.cpp
-├── program.exe
-├── report.json
-└── leaderboard.json
-
-### Generated C++ Source
-
-The generated Modern C++20 source can be viewed and downloaded.
-
-### Executable
-
-The compiled executable is saved as:
-
-
-outputs/program.exe
-
-
-### Migration Report
-
-JSON migration results are saved as:
-
-
-outputs/report.json
-
-The report contains migration status and performance information.
+For production-scale deployments, persistent external storage can be introduced in future iterations.
 
 ---
 
-# ⚙️ Configuration
+# 🧪 Testing & Quality
 
-Central configuration is maintained in:
+The project has a comprehensive automated test suite.
 
+Run:
 
-config.py
+```bash
+python -m pytest -q
+```
 
+### Current verification
 
-Configuration includes:
+```text
+170 passed in 3.67s
+```
 
-* Application metadata
-* Provider registry
-* Model registry
-* API keys
-* Ollama URL
-* Compiler configuration
-* C++20 standard
-* Optimization flags
-* Benchmark runs
-* Execution timeout
-* Supported file extensions
-* Runtime directories
+### Coverage areas
+
+* CLI argument parsing
+* CLI validation
+* Provider initialization
+* Groq provider
+* Ollama provider
+* Translation
+* Python analysis
+* Compilation
+* Execution
+* Benchmarking
+* Evaluation
+* Reporting
+* Leaderboard
+* Workspace management
+* Pipeline orchestration
+* Application entry point
+
+---
+
+# ☁️ Production Deployment
+
+The application is deployed on **Streamlit Community Cloud**.
+
+### Live application
+
+🚀 **https://ai-code-migration-platform-zievvdkcz9mr83emx2brgv.streamlit.app/**
+
+The deployed environment has successfully completed an end-to-end migration using:
+
+```text
+Groq
+  ↓
+openai/gpt-oss-120b
+  ↓
+Python → C++20
+  ↓
+g++
+  ↓
+Executable
+  ↓
+5× Benchmark
+  ↓
+Evaluation
+  ↓
+Report
+  ↓
+Leaderboard
+```
+
+### Production verification
+
+```text
+Application startup             ✅
+Dependencies                    ✅
+Groq provider                   ✅
+LLM generation                  ✅
+Translation                     ✅
+C++ compilation                 ✅
+Executable execution            ✅
+Benchmarking                    ✅
+Evaluation                      ✅
+Report generation               ✅
+Output generation               ✅
+Leaderboard                     ✅
+End-to-end pipeline             ✅
+```
+
+---
+
+# 🛡️ Error Handling
+
+The platform implements centralized exception handling.
+
+Supported failure categories include:
+
+* CLI validation errors
+* Provider errors
+* Translation errors
+* Compilation errors
+* Execution errors
+* Benchmarking errors
+* Evaluation errors
+* Pipeline errors
+
+CLI exit codes:
+
+```text
+0 → Success
+1 → Application / migration failure
+2 → Invalid CLI input
+```
+
+---
+
+# 📝 Logging
+
+The application uses structured logging across the migration lifecycle.
 
 Example:
 
-
-Default Provider: groq
-Default Model: llama-3.3-70b-versatile
-C++ Standard: c++20
-Optimization: -O3
-Benchmark Runs: 5
-Execution Timeout: 10 seconds
-
-
----
-
-# 🧠 Engineering Principles
-
-The project follows:
-
-* **Single Responsibility Principle (SRP)**
-* **Single Source of Truth (SSOT)**
-* **Loose Coupling**
-* Dependency Injection
-* Modular Service Boundaries
-* Centralized Configuration
-* Structured Logging
-* Explicit Exception Handling
-* Temporary Workspace Isolation
-* Automated Testing
-* Separation of Backend and UI
-* Provider Abstraction
+```text
+Starting migration pipeline.
+Starting code translation.
+Sending translation request to Groq.
+Code translation completed successfully.
+Starting C++ compilation.
+C++ compilation completed successfully.
+Execution completed with return code: 0.
+Benchmark completed.
+Evaluation completed successfully.
+Migration report generated successfully.
+Migration pipeline completed successfully.
+```
 
 ---
 
-# 🔐 Security
+# 🔒 Security
 
-* API keys are loaded through environment variables or Streamlit secrets.
-* `.env` files must never be committed.
-* Provider credentials are not included in migration reports.
-* Compilation uses isolated temporary workspaces.
-* Temporary workspaces are cleaned after migration.
-* Generated code should be reviewed before executing untrusted source.
-* Production deployments should use additional sandboxing for untrusted code execution.
+Generated C++ code is compiled and executed as part of the migration process.
 
----
+Current safeguards include:
 
-# 🎯 Project Goal   
+* Configurable execution timeout
+* Temporary workspaces
+* Input validation
+* Structured exception handling
+* Environment-based secret management
+* Controlled compilation workflow
 
-The long-term goal is to build a production-ready AI code migration platform capable of comparing multiple LLM providers and models on real-world code migration workloads.
-
-The architecture is designed so additional providers can be introduced without changing the core migration pipeline.
+For unrestricted production workloads, additional isolation such as **containerization or sandboxed execution** is recommended.
 
 ---
 
-# 🔮 Future Improvements
+# 🧭 Engineering Principles
 
-* Additional LLM providers
-* More migration quality metrics
-* Advanced semantic evaluation
-* Aggregated model leaderboard
-* Historical benchmark analytics
-* Side-by-side Python/C++ comparison
-* Large repository/project migration
-* Dockerized execution
-* Cloud deployment
-* Authentication
-* User workspaces
-* Advanced evaluation datasets
-* Model cost/performance comparison
-* Secure sandboxed code execution
+The project is designed around several software engineering principles:
 
----
+### Separation of Concerns
 
-# 📸 Interface
+Each major responsibility is implemented as an independent service.
 
-The Streamlit dashboard provides:
+### Provider Abstraction
 
-* Provider/model configuration
-* Python source upload
-* Migration execution
-* Migration status
-* Performance metrics
-* Program output
-* Generated C++20 code
-* Downloadable artifacts
-* Model leaderboard
+LLM providers implement a common interface.
 
----
+### Dependency Injection
 
-# 📈 Current Development Status
+Core pipeline components are wired explicitly through the application composition layer.
 
-| Component                | Status       |
-| ------------------------ | ------------ |
-| Python → C++20           | ✅            |
-| Groq Provider            | ✅            |
-| Ollama Provider          | ✅            |
-| Provider Factory         | ✅            |
-| Model Registry           | ✅            |
-| CLI                      | ✅            |
-| CLI Validation           | ✅            |
-| C++20 Compilation        | ✅            |
-| Execution                | ✅            |
-| Benchmarking             | ✅            |
-| Evaluation               | ✅            |
-| Report Generation        | ✅            |
-| Leaderboard Backend      | ✅            |
-| Leaderboard UI           | ✅            |
-| C++ Code Viewer          | ✅            |
-| Artifact Downloads       | ✅            |
-| Temporary Cleanup        | ✅            |
-| Streamlit Application    | ✅            |
-| Automated Tests          | ✅ 170 passed |
-| Groq E2E Migration       | ✅            |
-| Ollama E2E Migration     | ✅            |
-| Complex Sample Migration | ✅            |
+### Centralized Error Handling
 
-### Overall Status
+Application failures use a structured exception hierarchy.
 
-**Production-ready core migration pipeline + Streamlit interface**
+### Testability
+
+Services are independently testable through unit and integration tests.
+
+### Observability
+
+Important pipeline events are captured through structured logging.
+
+### Extensibility
+
+New providers and migration capabilities can be added without redesigning the entire system.
 
 ---
 
-## 📄 License
+# 🚧 Roadmap
 
-Add the project's license information before public distribution.
+### Near Term
+
+* [ ] Stronger execution sandboxing
+* [ ] Persistent cloud leaderboard
+* [ ] Improved Streamlit result dashboard
+* [ ] Migration history
+* [ ] Better generated-code validation
+* [ ] More integration tests
+
+### Future
+
+* [ ] Additional LLM providers
+* [ ] Containerized compilation
+* [ ] Advanced performance analytics
+* [ ] Parallel benchmarking
+* [ ] Semantic equivalence checking
+* [ ] Multi-language migration support
+* [ ] Enterprise deployment architecture
+
+---
+
+# 🎯 Why This Project?
+
+Traditional code migration can require significant manual effort.
+
+This platform explores how LLMs can be integrated into a **complete software engineering workflow**, where generated code is not simply returned to the user but is:
+
+```text
+Generated
+   ↓
+Analyzed
+   ↓
+Compiled
+   ↓
+Executed
+   ↓
+Benchmarked
+   ↓
+Evaluated
+   ↓
+Reported
+```
+
+This makes the project more than an AI code-generation demo—it is an **end-to-end AI-assisted migration pipeline**.
+
+---
+
+# 📈 Project Status
+
+| Area                     |     Status    |
+| ------------------------ | :-----------: |
+| Core architecture        |  🟢 Complete  |
+| Python → C++20 migration |  🟢 Complete  |
+| Groq integration         |  🟢 Complete  |
+| Ollama integration       |  🟢 Complete  |
+| Compiler pipeline        |  🟢 Complete  |
+| Execution pipeline       |  🟢 Complete  |
+| Benchmarking             |  🟢 Complete  |
+| Evaluation               |  🟢 Complete  |
+| Reporting                |  🟢 Complete  |
+| Leaderboard              |  🟢 Complete  |
+| CLI                      |  🟢 Complete  |
+| Streamlit UI             |  🟢 Complete  |
+| Cloud deployment         |  🟢 Complete  |
+| Automated tests          | 🟢 170 passed |
+| Advanced sandboxing      |   🟡 Planned  |
+| Persistent cloud storage |   🟡 Planned  |
+
+---
+
+# 👨‍💻 Author
+
+### Krishna
+
+BCA Student & AI/ML Developer
+
+GitHub:
+https://github.com/creatorKrishna05
+
+---
+
+# 📜 License
+
+This project is licensed under the **MIT License**.
+
+See [`LICENSE`](LICENSE) for details.
+
+---
+
+# ⭐ Support the Project
+
+If you find this project interesting or useful:
+
+⭐ **Star the repository**
+
+🍴 **Fork the project**
+
+🐛 **Open an issue**
+
+💡 **Suggest an improvement**
+
+---
+
+<p align="center">
+
+### 🚀 AI Code Migration Platform
+
+**Translate. Compile. Execute. Benchmark. Evaluate.**
+
+<br>
+
+<a href="https://ai-code-migration-platform-zievvdkcz9mr83emx2brgv.streamlit.app/">
+  <strong>🌐 Launch Live Demo →</strong>
+</a>
+
+</p>
