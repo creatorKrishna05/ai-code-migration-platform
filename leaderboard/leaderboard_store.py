@@ -5,8 +5,6 @@ from pathlib import Path
 
 from .leaderboard_entry import LeaderboardEntry
 
-from utils.exceptions import AIPlatformError
-from utils.logger import get_logger
 
 class LeaderboardStore:
     """
@@ -17,6 +15,7 @@ class LeaderboardStore:
         self,
         file_path: Path,
     ) -> None:
+
         """
         Initialize the leaderboard store.
 
@@ -24,6 +23,8 @@ class LeaderboardStore:
             file_path:
                 Path to the leaderboard JSON file.
         """
+        from utils.logger import get_logger
+        
         self._logger = get_logger(__name__)
         self._file_path = file_path
 
@@ -74,6 +75,8 @@ class LeaderboardStore:
             )
 
         except Exception as error:
+            from utils.exceptions import AIPlatformError
+
             self._logger.exception(
                 "Failed to save leaderboard entry."
             )
@@ -120,6 +123,8 @@ class LeaderboardStore:
             ]
 
         except Exception as error:
+            from utils.exceptions import AIPlatformError
+
             self._logger.exception(
                 "Failed to load leaderboard entries."
             )
