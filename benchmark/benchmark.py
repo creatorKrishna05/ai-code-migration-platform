@@ -3,21 +3,18 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
-from utils.logger import get_logger
 from compiler.executor import Executor
+from utils.logger import get_logger
+
 
 class Benchmark:
-    """
-    Benchmark compiled executables.
-    """
+    """Benchmark compiled executables."""
 
     def __init__(
         self,
         executor: Executor,
     ) -> None:
-        """
-        Initialize the benchmark service.
-        """
+        """Initialize the benchmark service."""
         self._executor = executor
         self._logger = get_logger(__name__)
 
@@ -28,23 +25,12 @@ class Benchmark:
         runs: int = 5,
     ) -> tuple[str, float]:
         """
-        Benchmark a compiled executable and measure its execution time.
-
-        Args:
-            executable_path:
-                Path to the compiled executable.
-            timeout:
-                Maximum execution time in seconds.
+        Benchmark a compiled executable.
 
         Returns:
-            tuple[str, float]:
-                Program output and execution time in seconds.
-
-        Raises:
-            ValueError:
-                If runs is less than or equal to zero.
-            ExecutionError:
-                If executable execution fails.
+            Tuple containing:
+            - program output
+            - average execution time
         """
 
         if runs <= 0:
@@ -55,30 +41,36 @@ class Benchmark:
             raise ValueError(
                 "Benchmark runs must be greater than zero."
             )
+
         self._logger.info(
             "Benchmarking executable: %s (%d runs).",
             executable_path,
             runs,
         )
+
         execution_times: list[float] = []
-        output = ""
+        program_output = ""
 
         for _ in range(runs):
             start_time = time.perf_counter()
-            
+
             output = self._executor.execute(
                 executable_path=executable_path,
                 timeout=timeout,
             )
-            
+
             end_time = time.perf_counter()
-            
-            execution_time = end_time - start_time
-            
-            execution_times.append(execution_time)
+
+            execution_times.append(
+                end_time - start_time
+            )
+
+            if not program_output:
+                program_output = output
 
         average_execution_time = (
-            sum(execution_times) / len(execution_times)
+            sum(execution_times)
+            / len(execution_times)
         )
 
         self._logger.info(
@@ -87,4 +79,7 @@ class Benchmark:
             average_execution_time,
         )
 
-        return output, average_execution_time
+        return (
+            program_output,
+            average_execution_time,
+        )

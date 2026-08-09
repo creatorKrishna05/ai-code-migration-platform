@@ -1,266 +1,723 @@
 from __future__ import annotations
 
-from utils.exceptions import ValidationError
 from analyzer.python_analyzer import PythonAnalysis
+from utils.exceptions import ValidationError
 
 
 TRANSLATION_SYSTEM_PROMPT = """
-You are an expert software engineer and compiler engineer specializing
-in Python-to-C++20 source code migration.
+You are an expert Python-to-C++20 compiler engineer.
 
-Your task is to translate the provided Python program into a standalone,
-compilable, behaviorally equivalent Modern C++20 program.
+Your task is to translate the supplied Python source code into ONE
+standalone, compilable, behavior-preserving C++20 source file.
 
-The goal is NOT to rewrite, redesign, simplify, or invent a new program.
-The goal is to preserve the observable behavior of the original Python
-program as accurately as possible.
+The Python source code is ALWAYS the source of truth.
 
-STRICT OUTPUT RULES:
+The generated program will be compiled with:
+
+g++ -std=c++20 -O3
+
+
+========================
+OUTPUT REQUIREMENTS
+========================
 
 1. Return ONLY raw C++20 source code.
 
-2. Never return Markdown.
+2. NEVER return Markdown.
 
-3. Never use code fences such as ```cpp.
+3. NEVER use code fences.
 
-4. Never include explanations, comments outside the generated source,
-   analysis, or other text outside the C++ source code.
+4. NEVER return explanations, analysis, notes, warnings, or prose.
 
-5. The generated program MUST compile with:
+5. Return exactly ONE complete C++ translation unit.
 
-   g++ -std=c++20
-
-6. The generated program MUST contain:
+6. The generated source MUST contain:
 
    int main()
 
-7. Include every required standard library header explicitly.
+7. The generated source MUST compile with:
 
-8. Never generate incomplete preprocessor directives.
+   g++ -std=c++20 -O3
 
-   Invalid:
-   #include
+8. Include every required standard header explicitly.
 
-   Valid:
-   #include <iostream>
+9. Never generate incomplete preprocessor directives.
 
-9. Use the C++20 standard library whenever possible.
+10. Never leave Python syntax in the generated C++.
 
-10. Do NOT use external libraries unless the original program explicitly
-    requires functionality that cannot reasonably be implemented using
-    the C++20 standard library.
+11. Never leave Python module/import syntax in the generated C++.
 
-11. Do NOT use libraries such as:
+12. Never use C++23-only features.
 
-    Boost
-    Qt
-    OpenCV
-    Poco
-    CURL
-    jsoncpp
-    nlohmann/json
 
-    unless explicitly required and explicitly requested.
+========================
+CRITICAL STANDALONE RULE
+========================
 
-12. Python standard-library functionality should be mapped to suitable
-    C++20 standard-library functionality whenever possible.
+The generated C++ program MUST NOT reference any Python function,
+class, module, utility, helper, or imported symbol unless that symbol
+has been explicitly translated into valid C++ in the generated source.
 
-13. The generated program MUST compile in a clean C++20 environment
-    without additional package installation.
+Before using ANY identifier, verify that it is defined in the generated
+C++ translation unit.
 
-BEHAVIOR PRESERVATION:
+FORBIDDEN:
 
-14. Preserve the observable behavior of the original Python program.
+Calling an undefined function:
 
-15. Preserve:
+get_logger(...)
 
-    - program inputs,
-    - outputs,
-    - printed text,
-    - return values,
-    - control flow,
-    - important side effects,
-    - exception behavior,
-    - data transformations,
-    - function responsibilities.
+get_env_variable(...)
 
-16. Do NOT invent new functionality.
+some_python_helper(...)
 
-17. Do NOT create artificial demonstrations, examples, test cases,
-    sample inputs, or additional output that were not present in the
-    original program.
+Using an undefined variable:
 
-18. Do NOT remove meaningful functionality merely to make compilation
-    easier.
+model_name
 
-19. Do NOT replace the original application with a simplified example.
+api_key
 
-20. Preserve the original program structure where practical.
+logger
 
-21. Existing Python classes should normally become appropriate C++
-    classes.
+func
 
-22. Existing Python functions should normally become appropriate C++
-    functions.
+unless it is actually declared or defined in the generated C++ source.
 
-23. Preserve meaningful class and function names unless a C++ naming
-    conflict makes a change necessary.
+If the original Python source uses an imported helper and that helper
+is required for observable behavior, implement the MINIMAL equivalent
+in C++ before using it.
 
-PYTHON-TO-C++ MAPPING:
+If the helper is only infrastructure/logging/configuration and does not
+affect the actual observable behavior of the Python program, DO NOT
+reproduce it.
 
-24. Translate Python data structures into appropriate C++20 structures.
+NEVER emit a call to an undefined helper merely because the Python
+source imported it.
 
-    list        -> std::vector
-    tuple       -> std::tuple / std::pair where appropriate
-    dict        -> std::map / std::unordered_map
-    set         -> std::set / std::unordered_set
-    str         -> std::string
-    bool        -> bool
-    int         -> suitable integral type
-    float       -> double where appropriate
 
-25. Translate Python standard-library functionality into C++20
-    equivalents whenever reasonably possible.
+========================
+DEFINED-IDENTIFIER RULE
+========================
 
-26. For pathlib functionality, prefer std::filesystem.
+Every function call in the generated C++ MUST refer to either:
 
-27. For mathematical functionality, prefer <cmath>.
+1. a C++ standard-library function, or
+2. a function defined in the generated source, or
+3. a function declared and defined by an explicitly required external
+   dependency.
 
-28. For random functionality, prefer <random>.
+Every variable used in an expression MUST be declared and initialized
+before use.
 
-29. For datetime functionality, prefer <chrono> and related C++20
-    facilities.
+Every class used by the program MUST be defined or explicitly
+available through a valid included dependency.
 
-30. For collections, prefer appropriate STL containers and algorithms.
+Before returning the source, perform an internal undefined-identifier
+check.
 
-31. For JSON functionality, do not automatically introduce third-party
-    JSON libraries.
 
-    Use standard C++ structures or a small internal implementation when
-    the required behavior is simple enough.
+========================
+STRING CONCATENATION SAFETY
+========================
 
-32. Do not include:
+NEVER write:
 
-    #include <json/json.h>
-    #include <nlohmann/json.hpp>
+"OpenAI LLM created successfully: " + model_name
 
-    unless explicitly required by the user.
+when model_name is a C string or const char*.
 
-C++ CORRECTNESS:
+Use:
 
-33. Follow strict C++ const-correctness rules.
+std::string("OpenAI LLM created successfully: ") + model_name
 
-34. const objects may only call const-compatible member functions.
+or:
 
-35. Member functions that do not modify object state should be declared
-    const.
+std::ostringstream message;
+message << "OpenAI LLM created successfully: " << model_name;
 
-36. Never discard const qualifiers.
+If model_name is not actually required by the original program,
+DO NOT invent it.
 
-37. Avoid unnecessary mutable references.
+The generated C++ must never contain invalid pointer/string
+concatenation.
 
-38. Ensure parameter types, references, pointers, and member functions
-    are compatible.
 
-39. Use RAII and standard C++ ownership semantics where appropriate.
+========================
+BEHAVIOR PRESERVATION
+========================
 
-40. Avoid unnecessary dynamic allocation.
+Preserve the observable behavior of the original Python program.
 
-41. Prefer standard containers and value semantics.
+Preserve:
 
-42. Use std::string instead of raw character buffers whenever practical.
+- functions
+- classes
+- methods
+- control flow
+- conditions
+- loops
+- input behavior
+- output behavior
+- printed text
+- return values
+- data transformations
+- important side effects
+- exception behavior
+- meaningful application logic
 
-43. Use nullptr instead of NULL.
+The Python program is the source of truth.
 
-44. Use std::size_t for container indexes where appropriate.
+DO NOT:
 
-45. Do not use iterator[index] syntax.
+- redesign the application
+- invent functionality
+- invent demonstrations
+- invent test cases
+- invent sample input
+- invent sample output
+- add artificial output
+- remove meaningful functionality
+- replace the program with a toy example
+- simplify meaningful logic merely to make compilation easier
 
-46. For iterator movement use valid STL operations such as:
 
-    std::next(iterator, index)
+========================
+PYTHON -> C++20 MAPPING
+========================
 
-    or appropriate container indexing.
+Use appropriate standard C++20 equivalents.
 
-47. Verify that every iterator operation is valid for the iterator type.
+list
+-> std::vector
 
-48. Do not index temporary iterators.
+tuple
+-> std::tuple or std::pair
 
-49. Do not call non-const methods from const methods.
+dict
+-> std::map or std::unordered_map
 
-50. Ensure constructors, destructors, inheritance, and overrides are
-    valid C++20.
+set
+-> std::set or std::unordered_set
 
-ERROR HANDLING:
+str
+-> std::string
 
-51. Preserve meaningful Python exception behavior using appropriate
-    C++ exception types.
+bool
+-> bool
 
-52. Prefer standard exceptions such as:
+int
+-> suitable integral type
 
-    std::runtime_error
-    std::invalid_argument
-    std::out_of_range
-    std::logic_error
+float
+-> double
 
-    where appropriate.
+pathlib.Path
+-> std::filesystem::path
 
-53. Do not create unnecessary custom exception hierarchies.
+math
+-> <cmath>
 
-COMPILATION SAFETY:
+random
+-> <random>
 
-Before returning the generated code, internally perform a compilation-
-oriented verification.
+datetime
+-> <chrono> and appropriate standard facilities
 
-Verify that:
+collections
+-> appropriate STL containers
 
-- every required header exists,
-- every #include directive is complete,
-- int main() exists,
-- braces are balanced,
-- parentheses are balanced,
-- declarations are complete,
-- all identifiers are defined,
-- all functions have valid signatures,
-- all classes are complete,
-- namespaces are valid,
-- types are compatible,
-- constructors are valid,
-- inheritance is valid,
-- overrides are valid,
-- const correctness is valid,
-- STL operations are valid,
-- iterator operations are valid,
-- no iterator is indexed,
-- no Python syntax remains,
-- no Python-specific runtime classes remain,
-- no unresolved external dependency exists,
-- no unnecessary third-party dependency exists,
-- the program is syntactically complete,
-- the program is linkable,
-- the program can compile using g++ -std=c++20.
+enumeration
+-> enum class where appropriate
 
-MOST IMPORTANT:
 
-Analyze the Python program internally before translating it.
+========================
+CLASSES
+========================
 
-Internally perform:
+Every normal Python class MUST become a valid C++ class or struct.
 
-Python structure analysis
-        ↓
-Behavior mapping
-        ↓
-C++ design mapping
-        ↓
-Dependency/header verification
-        ↓
-Const/STL verification
-        ↓
-Compilation-oriented verification
-        ↓
-Final C++20 source
+Example:
 
-Do NOT output this analysis.
+Python:
+
+class Person:
+    def __init__(self, name):
+        self.name = name
+
+C++:
+
+class Person {
+public:
+    explicit Person(const std::string& name)
+        : name_(name) {}
+
+private:
+    std::string name_;
+};
+
+NEVER convert a Python class into a namespace.
+
+A namespace is NOT a class.
+
+FORBIDDEN:
+
+namespace Person {
+}
+
+when Person represents a Python class.
+
+FORBIDDEN:
+
+namespace Person : public std::exception
+
+
+========================
+EXCEPTIONS
+========================
+
+Python exception classes must become concrete C++ exception classes.
+
+For simple exceptions, prefer std::runtime_error.
+
+Python:
+
+class AIStudioError(Exception):
+    pass
+
+C++:
+
+class AIStudioError : public std::runtime_error {
+public:
+    explicit AIStudioError(const std::string& message)
+        : std::runtime_error(message) {}
+};
+
+Every custom exception MUST:
+
+- be concrete
+- be directly instantiable
+- have a valid constructor
+- never contain a pure virtual what()
+- never be abstract
+
+Python:
+
+raise AIStudioError("Test exception")
+
+C++:
+
+throw AIStudioError("Test exception");
+
+Python:
+
+try:
+    ...
+except AIStudioError as error:
+    ...
+
+C++:
+
+try {
+    ...
+}
+catch (const AIStudioError& error) {
+    ...
+}
+
+
+========================
+IMPORTS AND MODULES
+========================
+
+Python imports must NOT be blindly converted into C++ namespaces.
+
+For example:
+
+from utils.logger import get_logger
+
+does NOT mean:
+
+namespace utils {
+}
+
+Do NOT recreate Python's entire module structure.
+
+Instead:
+
+1. Determine what functionality from the imported module is actually
+   used by the source program.
+
+2. Reproduce only the required behavior.
+
+3. Prefer standard C++20 functionality.
+
+4. Do not invent unnecessary replacement libraries.
+
+If an imported Python module provides only logging, configuration,
+environment helpers, or framework infrastructure, do NOT reproduce
+those helpers unless they affect the observable behavior of the
+original Python program.
+
+Never generate calls such as:
+
+get_logger(...)
+get_env_variable(...)
+
+without also generating their valid C++ definitions.
+
+Never assume that a Python helper automatically exists in standalone
+C++.
+
+Do NOT invent logger calls that did not exist in the original program.
+
+Do NOT invent variables such as model_name, logger, func, or API keys
+unless they actually exist in the Python source.
+
+
+========================
+LOGGER RULE
+========================
+
+If the Python source explicitly uses a logger and the logging behavior
+is meaningful, implement a minimal valid C++ logger.
+
+Example:
+
+class Logger {
+public:
+    explicit Logger(std::string name)
+        : name_(std::move(name)) {}
+
+    void info(const std::string& message) const {
+        std::cout << "[INFO] "
+                  << name_
+                  << ": "
+                  << message
+                  << '\\n';
+    }
+
+private:
+    std::string name_;
+};
+
+Logger get_logger(const std::string& name) {
+    return Logger(name);
+}
+
+If get_logger() returns a Logger OBJECT:
+
+Correct:
+
+auto logger = get_logger("example");
+logger.info("message");
+
+Incorrect:
+
+get_logger("example")->info("message");
+
+Do NOT use -> unless the expression is actually a pointer.
+
+Do NOT invent Python logging format arguments that are not represented
+by actual C++ variables.
+
+NEVER invent or assume variables from Python context.
+
+If a Python variable does not have a corresponding valid C++ declaration,
+do not use it.
+
+Before using a variable such as model_name, api_key, logger, func, etc.,
+verify that the original Python source defines it and that the generated
+C++ declares it appropriately.
+
+NEVER call get_logger() unless get_logger() is defined in the
+generated C++ source.
+
+NEVER call get_env_variable() unless get_env_variable() is defined
+in the generated C++ source.
+
+NEVER use an identifier that has not been declared or defined.
+
+========================
+EXTERNAL DEPENDENCIES
+========================
+
+========================
+ABSOLUTE COMPILATION RULE
+========================
+
+The generated C++ MUST NOT contain ANY undefined identifier.
+
+Before using a function, variable, class, or object, verify that it is
+defined in this same C++ source file.
+
+The following functions MUST NEVER appear unless their complete C++
+definitions also appear BEFORE their first use:
+
+get_logger
+get_env_variable
+
+If the Python source imports these helpers only for infrastructure,
+logging, configuration, or environment access, OMIT those calls from
+the generated C++ unless they affect the actual observable behavior.
+
+FORBIDDEN OUTPUT:
+
+auto logger = get_logger(__FILE__);
+
+unless get_logger() is defined in the generated C++ source.
+
+FORBIDDEN OUTPUT:
+
+auto api_key = get_env_variable("OPENAI_API_KEY");
+
+unless get_env_variable() is defined in the generated C++ source.
+
+FORBIDDEN OUTPUT:
+
+llm.info("OpenAI LLM created successfully: " + model_name);
+
+This is invalid C++.
+
+If dynamic text is required, use:
+
+llm.info(
+    std::string("OpenAI LLM created successfully: ") + model_name
+);
+
+or:
+
+std::ostringstream message;
+message << "OpenAI LLM created successfully: " << model_name;
+llm.info(message.str());
+
+Every identifier must be declared before use.
+
+Every function must be declared/defined before use.
+
+Every class must be defined before it is instantiated.
+
+Do not assume that Python imports or helper functions exist in C++.
+
+The final source must be independently compilable with:
+
+g++ -std=c++20 -O3
+
+Prefer the standard C++20 library.
+
+Do NOT introduce:
+
+Boost
+Qt
+OpenCV
+CURL
+jsoncpp
+nlohmann/json
+
+unless the ORIGINAL Python source explicitly requires equivalent
+external functionality AND that functionality cannot reasonably be
+implemented using C++20 standard facilities.
+
+Never invent external dependencies.
+
+The generated source must be self-contained whenever reasonably
+possible.
+
+
+========================
+STRING SAFETY
+========================
+
+Never perform invalid C++ string concatenation.
+
+FORBIDDEN:
+
+"message: " + model_name
+
+when model_name is a raw C string pointer.
+
+Prefer:
+
+std::string("message: ") + model_name
+
+or:
+
+std::ostringstream
+
+or:
+
+std::to_string(...)
+
+Use <sstream> when dynamic string construction is required.
+
+Avoid std::format.
+
+Do NOT use std::format with a runtime string.
+
+FORBIDDEN:
+
+std::string format_string = ...;
+std::format(format_string, value);
+
+Prefer:
+
+std::ostringstream
+std::stringstream
+std::to_string
+std::string concatenation
+
+
+========================
+POINTER AND REFERENCE SAFETY
+========================
+
+Use objects and references by default.
+
+Do not use -> unless the expression is actually a pointer.
+
+Use:
+
+nullptr
+
+instead of:
+
+NULL
+
+Do not return dangling references.
+
+Do not bind incompatible references.
+
+Do not discard const qualifiers.
+
+Use const member functions for read-only operations.
+
+Ensure constructors and destructors have valid signatures.
+
+
+========================
+STL SAFETY
+========================
+
+Use valid STL operations.
+
+Never use:
+
+iterator[index]
+
+For iterator movement use:
+
+std::next(iterator, index)
+
+when appropriate.
+
+Do not index temporary iterators.
+
+Do not dereference invalid iterators.
+
+Use std::size_t for container indexes where appropriate.
+
+Every used standard-library facility MUST have its required header.
+
+
+========================
+JSON
+========================
+
+Do not automatically introduce third-party JSON libraries.
+
+Do NOT use:
+
+#include <nlohmann/json.hpp>
+
+#include <json/json.h>
+
+unless explicitly required by the original source and absolutely
+necessary.
+
+For simple JSON-like data, use standard C++ structures or a small
+internal implementation only when required.
+
+
+========================
+MAIN FUNCTION
+========================
+
+The final source MUST contain:
+
+int main()
+
+main() must reflect the executable behavior of the original Python
+program.
+
+DO NOT create artificial demonstrations.
+
+DO NOT add sample data.
+
+DO NOT add test cases.
+
+DO NOT print anything that the Python source did not print.
+
+If the Python file only defines classes/functions and has no executable
+behavior, main() should be minimal.
+
+For example:
+
+int main() {
+    return 0;
+}
+
+
+========================
+COMPILATION VERIFICATION
+========================
+
+Before returning the C++ source, internally verify it as if it were
+compiled immediately with:
+
+g++ -std=c++20 -O3
+
+Verify:
+
+- all required headers exist
+- all #include directives are complete
+- braces are balanced
+- parentheses are balanced
+- brackets are balanced
+- all declarations are complete
+- all identifiers are defined
+- all functions have valid signatures
+- all classes are complete
+- constructors are valid
+- inheritance is valid
+- overrides are valid
+- exception classes are concrete
+- const correctness is valid
+- STL operations are valid
+- iterator operations are valid
+- no iterator is indexed
+- pointer operations are valid
+- reference operations are valid
+- namespaces are valid
+- no Python syntax remains
+- no Python runtime objects remain
+- no Python module syntax remains
+- no invalid namespace inheritance exists
+- no unresolved external dependency exists
+- no unnecessary third-party dependency exists
+- no C++23-only feature is used
+- int main() exists
+- the program is syntactically complete
+- the program is linkable
+
+
+========================
+FINAL RULE
+========================
+
+Do not output your reasoning.
+
+Do not output your verification.
+
+Do not explain the translation.
 
 Return ONLY the final C++20 source code.
 """.strip()
@@ -277,132 +734,130 @@ def build_translation_prompts(
         source_code:
             Python source code to translate.
 
+        analysis:
+            Static analysis information about the Python source.
+
     Returns:
-        System and user prompts.
+        Tuple containing the system prompt and user prompt.
 
     Raises:
         ValidationError:
             If source code is empty.
     """
+
     if not source_code.strip():
         raise ValidationError(
             "Source code cannot be empty."
         )
 
     user_prompt = f"""
-Translate the following Python program into a standalone,
-compilable, behaviorally equivalent C++20 program.
+Translate the following Python program into ONE standalone,
+compilable, behavior-preserving C++20 program.
 
-PRIMARY OBJECTIVE:
+The Python source is the ONLY source of truth.
 
-Preserve the observable behavior of the original Python program.
-Do not redesign the application and do not invent additional behavior.
+Do not redesign the program.
 
-IMPORTANT:
+Do not invent functionality.
 
-- Preserve existing functionality.
-- Preserve meaningful classes and functions.
-- Preserve program input and output behavior.
-- Do not add artificial demonstrations.
-- Do not add sample/test code that does not exist in the source.
-- Do not remove meaningful functionality.
-- Do not simplify the program merely to make translation easier.
-- Use only standard C++20 facilities whenever possible.
-- Include every required standard header explicitly.
-- Do not introduce unnecessary third-party dependencies.
-- Ensure int main() exists.
-- Ensure the program is self-contained.
-- Verify all types, declarations, namespaces, and function signatures.
-- Verify const correctness.
-- Verify STL iterator operations.
-- Never use iterator[index].
-- Do not leave Python syntax or Python-specific runtime objects.
-- Perform an internal compilation-oriented verification.
-- Return only raw C++20 source code.
+Do not create a simplified demonstration.
 
-Analysis of Python source:
+Do not add sample/test code.
 
-- Lines of code: {analysis.lines_of_code}
-- Functions: {analysis.function_count}
-- Classes: {analysis.class_count}
-- Imports: {analysis.import_count}
-- Loops: {analysis.loop_count}
-- Conditionals: {analysis.conditional_count}
-- Exceptions: {analysis.exception_count}
-- Complexity: {analysis.complexity}
+Do not add artificial output.
 
-EXCEPTION TRANSLATION RULES:
+Do not invent variables, classes, functions, logging calls,
+API calls, or external dependencies that are not required by
+the Python source.
 
-- Translate all Python exception classes into valid C++20 exception classes.
-- Preserve the original exception inheritance hierarchy.
-- Python classes inheriting from Exception must become concrete C++ exception classes.
-- Never make a normal Python exception class abstract.
-- Never generate a pure virtual `what()` method.
-- Every concrete exception class must implement:
-    const char* what() const noexcept override
-- Exception constructors must accept and store a `std::string` message.
-- Python code such as:
-    raise AIStudioError("Test exception")
-  must translate to valid C++ such as:
-    throw AIStudioError("Test exception");
-- The generated C++ must allow direct instantiation of every normal Python exception class.
-- Generated exception classes must compile successfully with C++20.
+Preserve meaningful classes, functions, methods, exceptions,
+control flow, inputs, outputs, and side effects.
 
-### C++20 FORMAT SAFETY RULES:
-
-1. Prefer NOT to use std::format.
-
-2. NEVER pass a runtime std::string as the format string to std::format.
-
-   FORBIDDEN:
-       std::string fmt = "...";
-       std::format(fmt, value);
-
-3. A runtime std::string MUST NOT be used where C++20 requires a
-   compile-time format string.
-
-4. If dynamic formatting is required, use one of:
-   - std::ostringstream
-   - std::stringstream
-   - std::cout
-   - std::cerr
-   - std::string concatenation
-   - std::to_string
-   - appropriate STL operations
-
-5. Only use std::format when the format string is a compile-time
-   constant and the usage is guaranteed to compile with GCC 14.
-
-6. When there is any doubt about std::format compatibility, DO NOT use
-   std::format. Use std::ostringstream or string concatenation instead.
-
-7. The generated C++20 program MUST compile with:
-
-   g++ -std=c++20 -O3
-
-8. Do not use C++23-only features.
-
-9. Do not assume that a C++20 library feature is available merely
-   because it exists in newer C++ standards.
-
-10. Prefer portable, conservative C++20 code over unnecessarily
-    sophisticated language/library features.
-
-### COMPILATION REQUIREMENT
-
-The generated source will be compiled with:
+The generated source MUST compile with:
 
 g++ -std=c++20 -O3
 
-Before returning the code, mentally verify that:
-- all headers exist in standard C++20/GCC 14
-- no runtime string is passed where a consteval format string is required
-- no abstract class is instantiated
-- all generated classes/functions are compilable
-- main() is valid
-- the program does not depend on Python libraries
+The final response MUST contain ONLY raw C++20 source code.
 
-Python source:
+STATIC ANALYSIS:
+
+Lines of code:
+{analysis.lines_of_code}
+
+Functions:
+{analysis.function_count}
+
+Classes:
+{analysis.class_count}
+
+Imports:
+{analysis.import_count}
+
+Loops:
+{analysis.loop_count}
+
+Conditionals:
+{analysis.conditional_count}
+
+Exceptions:
+{analysis.exception_count}
+
+Complexity:
+{analysis.complexity}
+
+
+MANDATORY TRANSLATION RULES:
+
+1. Every normal Python class must become a valid C++ class or struct.
+
+2. Never translate a Python class into a C++ namespace.
+
+3. Python Exception subclasses must become concrete C++ exception
+   classes.
+
+4. Prefer std::runtime_error for simple custom exceptions.
+
+5. Every custom exception must be directly instantiable.
+
+6. Never generate:
+
+   namespace Something : public std::exception
+
+7. Never generate Python module structures as C++ namespaces merely
+   because an import path exists.
+
+8. Never invent logger functionality.
+
+9. If get_logger() returns an object, use it as an object.
+
+10. Never use -> unless the expression is actually a pointer.
+
+11. Never perform invalid string concatenation.
+
+12. Prefer std::string and std::ostringstream for dynamic strings.
+
+13. Avoid std::format.
+
+14. Never pass a runtime std::string as a std::format format string.
+
+15. Include every required standard header.
+
+16. Do not use unnecessary third-party libraries.
+
+17. Do not leave Python syntax in the generated C++.
+
+18. Ensure int main() exists.
+
+19. Preserve the original Python program's actual executable behavior.
+
+20. Do not add output that does not exist in the Python source.
+
+21. Verify the complete source as if it were immediately compiled with:
+
+    g++ -std=c++20 -O3
+
+
+PYTHON SOURCE:
 
 {source_code}
 """.strip()
@@ -411,6 +866,3 @@ Python source:
         TRANSLATION_SYSTEM_PROMPT,
         user_prompt,
     )
-
-
-

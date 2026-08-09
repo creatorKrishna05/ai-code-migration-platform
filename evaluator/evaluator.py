@@ -18,29 +18,42 @@ class Evaluator:
         """
         self._logger = get_logger(__name__)
 
-
     def evaluate(
-            self,
-            translation_success: bool,
-            compilation_success: bool,
-            execution_success: bool,
-            execution_time: float,
-            benchmark_time: float,
+        self,
+        translation_success: bool,
+        compilation_success: bool,
+        execution_success: bool,
+        execution_time: float,
+        benchmark_time: float,
+        program_output: str = "",
     ) -> dict[str, Any]:
-        """       
+        """
         Aggregate migration results and produce a unified evaluation.
 
         Args:
-            translation_success: Whether translation completed successfully.
-            compilation_success: Whether compilation completed successfully.
-            execution_success: Whether execution completed successfully.
-            execution_time: Program execution time in seconds.
-            benchmark_time: Average benchmark time in seconds.
+            translation_success:
+                Whether translation completed successfully.
+
+            compilation_success:
+                Whether compilation completed successfully.
+
+            execution_success:
+                Whether execution completed successfully.
+
+            execution_time:
+                Program execution time in seconds.
+
+            benchmark_time:
+                Average benchmark time in seconds.
+
+            program_output:
+                Standard output produced by the migrated program.
 
         Returns:
             Dictionary containing the evaluation summary.
         """
         self._logger.info("Starting evaluation.")
+
         try:
             overall_success = (
                 translation_success
@@ -56,15 +69,17 @@ class Evaluator:
                 "benchmark_time": benchmark_time,
                 "overall_success": overall_success,
             }
-
-            self._logger.info("Evaluation completed successfully.")
+            self._logger.info(
+                "Evaluation completed successfully."
+            )
 
             return evaluation
 
         except Exception as error:
-            self._logger.exception("Evaluation failed.")
+            self._logger.exception(
+                "Evaluation failed."
+            )
 
             raise EvaluationError(
                 "Failed to evaluate migration results."
             ) from error
-        

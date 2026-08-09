@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from pathlib import Path
 from typing import Any
 
@@ -119,22 +120,27 @@ class MigrationPipeline:
                 )
             )
 
+            benchmark_start = time.perf_counter()
+
             program_output, benchmark_time = (
                 self._benchmark.benchmark(
-                    executable_path=executable_path,
-                    runs=self._benchmark_runs,
-                    timeout=self._timeout,
+                executable_path=executable_path,
+                runs=self._benchmark_runs,
+                timeout=self._timeout,
                 )
             )
 
-            evaluation = (
-                self._evaluator.evaluate(
-                    translation_success=True,
-                    compilation_success=True,
-                    execution_success=True,
-                    execution_time=benchmark_time,
-                    benchmark_time=benchmark_time,
-                )
+            execution_time = (
+                time.perf_counter() - benchmark_start
+            )
+
+            evaluation = self._evaluator.evaluate(
+                translation_success=True,
+                compilation_success=True,
+                execution_success=True,
+                execution_time=execution_time,
+                benchmark_time=benchmark_time,
+                program_output=program_output,
             )
 
             report = (

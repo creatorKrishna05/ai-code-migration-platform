@@ -3,9 +3,11 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from config import MODELS
-from utils.logger import get_logger
+from cli.arguments import parse_args
+from cli.validators import CLIValidationError, CLIValidator
+from config import DEFAULT_PROVIDER, MODELS
 from utils.exceptions import AIPlatformError
+from utils.logger import get_logger
 
 
 logger = get_logger(__name__)
@@ -23,14 +25,13 @@ def build_pipeline(
     Build and wire all application services.
     """
 
+    from analyzer.python_analyzer import PythonAnalyzer
     from benchmark.benchmark import Benchmark
     from compiler.compiler import Compiler
     from compiler.executor import Executor
     from config import (
         BENCHMARK_RUNS,
-        DEFAULT_PROVIDER,
         EXECUTION_TIMEOUT_SECONDS,
-      
     )
     from evaluator.evaluator import Evaluator
     from leaderboard.leaderboard_store import LeaderboardStore
@@ -41,8 +42,6 @@ def build_pipeline(
     from report.report_generator import ReportGenerator
     from translator.translator import Translator
     from workspace.workspace_manager import WorkspaceManager
-    from analyzer.python_analyzer import PythonAnalyzer
-  
 
     logger.info(
         "Building application dependencies."
@@ -60,7 +59,7 @@ def build_pipeline(
     )
 
     translator = Translator(
-        provider=provider,       
+        provider=provider,
     )
 
     analyzer = PythonAnalyzer()
@@ -130,13 +129,6 @@ def main() -> int:
     Returns:
         Process exit code.
     """
-    from cli.arguments import parse_args
-    from cli.validators import (
-        CLIValidationError,
-        CLIValidator,
-    )
-    from config import DEFAULT_PROVIDER
-
     try:
         logger.info(
             "Starting AI Code Migration Platform."
@@ -151,12 +143,10 @@ def main() -> int:
 
         validator = CLIValidator()
 
-        provider_name = (
-            validator.validate_provider(
-                args.provider
-                if args.provider is not None
-                else DEFAULT_PROVIDER
-            )
+        provider_name = validator.validate_provider(
+            args.provider
+            if args.provider is not None
+            else DEFAULT_PROVIDER
         )
 
         model_name = None
@@ -192,10 +182,8 @@ def main() -> int:
                 args.timeout
             )
 
-        source_path = (
-            validator.validate_source_path(
-                args.source
-            )
+        source_path = validator.validate_source_path(
+            args.source
         )
 
         pipeline = build_pipeline(
@@ -207,9 +195,7 @@ def main() -> int:
             report_json=args.report_json,
         )
 
-        report = pipeline.run(
-            source_path
-        )
+        report = pipeline.run(source_path)
 
         logger.info(
             "Migration completed successfully."
@@ -224,29 +210,39 @@ def main() -> int:
         display_model = (
             model_name
             if model_name is not None
-            else next(iter(MODELS[provider_name].values()))
+            else next(
+                iter(MODELS[provider_name].values())
+            )
         )
 
         print(f"Model: {display_model}")
 
         print(
-            f"Translation: "
+            "Translation: "
             f"{'SUCCESS' if report.get('translation_success') else 'FAILED'}"
         )
+
         print(
-            f"Compilation: "
+            "Compilation: "
             f"{'SUCCESS' if report.get('compilation_success') else 'FAILED'}"
         )
+
         print(
             "Execution: "
             f"{'SUCCESS' if report.get('execution_success') else 'FAILED'}"
         )
+
         print(
             f"Benchmark: "
             f"{report.get('benchmark_time', 0):.6f} seconds"
         )
-        print(f"Output: {report.get('program_output', '')}")
+
+        print(
+            f"Output: {report.get('program_output', '')}"
+        )
+
         print()
+
         print("Generated files:")
         print("  outputs/source.cpp")
         print("  outputs/program.exe")

@@ -13,6 +13,7 @@ from config import (
     OUTPUT_DIR,
 )
 
+
 st.set_page_config(
     page_title="AI Code Migration Platform",
     page_icon="🚀",
@@ -20,7 +21,7 @@ st.set_page_config(
 )
 
 
-LEADERBOARD_PATH = Path(OUTPUT_DIR/"leaderboard.json")
+LEADERBOARD_PATH = Path(OUTPUT_DIR) / "leaderboard.json"
 
 
 def get_status_text(success: bool) -> str:
@@ -189,8 +190,10 @@ def render_performance(report: dict) -> None:
 
 
 def render_program_output(report: dict) -> None:
-    """Render migrated program output."""
     st.subheader("🖥️ Program Output")
+
+    st.write("DEBUG report keys:", list(report.keys()))
+    st.write("DEBUG program_output:", repr(report.get("program_output")))
 
     program_output = report.get(
         "program_output",
@@ -206,7 +209,6 @@ def render_program_output(report: dict) -> None:
         st.info(
             "The migrated program produced no output."
         )
-
 
 def render_generated_code(report: dict) -> None:
     """Render generated C++ source code."""
@@ -259,24 +261,24 @@ def render_report_download(report: dict) -> None:
 def render_leaderboard() -> None:
     """Render the migration leaderboard."""
 
-    from leaderboard.manager import Leaderboard
     from leaderboard.leaderboard_store import LeaderboardStore
+    from leaderboard.manager import Leaderboard
 
     st.subheader("🏆 Leaderboard")
 
     try:
+        store = LeaderboardStore(
+            file_path=LEADERBOARD_PATH
+        )
+
         leaderboard = Leaderboard(
-            store=LeaderboardStore(
-                LEADERBOARD_PATH
-            )
+            store=store
         )
 
         rankings = leaderboard.get_rankings()
 
         if not rankings:
-            st.info(
-                "No migration results available yet."
-            )
+            st.info("No migration results available yet.")
             return
 
         rows = []
@@ -311,7 +313,7 @@ def render_leaderboard() -> None:
         )
 
     except Exception as exc:
-        st.warning(
+        st.error(
             f"Unable to load leaderboard: {exc}"
         )
 
@@ -321,10 +323,6 @@ def render_migration_results(
     provider: str,
     model: str,
 ) -> None:
-
-    st.success(
-        "Migration completed successfully! 🎉"
-    )
 
     st.divider()
 
@@ -358,6 +356,10 @@ def render_migration_results(
     render_report_download(
         report
     )
+
+    st.divider()
+
+    render_leaderboard()
 
 
 def run_migration(
@@ -445,10 +447,6 @@ def main() -> None:
             st.session_state["migration_report"] = report
             st.session_state["migration_provider"] = provider
             st.session_state["migration_model"] = model
-
-            st.success(
-                "Migration completed successfully! 🎉"
-            )
 
         except Exception as exc:
             st.error(

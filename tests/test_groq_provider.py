@@ -18,9 +18,7 @@ def test_groq_provider_initializes(monkeypatch) -> None:
     provider = GroqProvider()
 
     assert provider.provider_name == "Groq"
-    assert provider.model_name == (
-        "llama-3.3-70b-versatile"
-    )
+    assert provider.model_name == "openai/gpt-oss-120b"
 
 
 def test_groq_provider_accepts_custom_model(
